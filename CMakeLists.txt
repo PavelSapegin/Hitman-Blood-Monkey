@@ -12,10 +12,13 @@ include_directories(include)
 add_executable(testgame 
     src/main.cpp
     src/core/Engine.cpp
+    src/ncurses_renderer.cpp
     include/rogue/entities/Entity.cpp
     include/rogue/entities/Monster.cpp
     include/rogue/entities/Player.cpp
     include/rogue/world/Map.cpp
+    include/rogue/core/Command.cpp
+    
 )
 
 

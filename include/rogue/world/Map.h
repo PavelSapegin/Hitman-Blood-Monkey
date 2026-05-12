@@ -1,4 +1,5 @@
 #pragma once
+#include "../Renderer.h"
 #include <vector>
 
 namespace rogue {
@@ -27,7 +28,7 @@ namespace rogue {
         int getHeight() const;
 
         bool isWalkable(int x, int y) const;
-        void render() const;
+        void render(IRenderer& renderer) const;
         void spillBlood(int x, int y);
     private:
         int width;

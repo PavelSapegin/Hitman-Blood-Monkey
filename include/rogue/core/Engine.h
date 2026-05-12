@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <memory>
+#include "../Renderer.h"
 #include "../world/Map.h"
 #include "../entities/Player.h"
 #include "../entities/Monster.h"
@@ -9,13 +10,14 @@ namespace rogue {
 
     class Engine {
     public:
-        Engine(int mapWidth, int mapHeight);
+        Engine(std::unique_ptr<IRenderer> renderer);
         ~Engine();
 
         void run(); // Main game loop
         
     private:
-
+    
+    std::unique_ptr<IRenderer> renderer; // Using unique_ptr for automatic memory management
     void handleInput();
     void render();
 

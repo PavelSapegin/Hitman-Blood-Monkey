@@ -1,4 +1,5 @@
 #include "Map.h"
+#include "../Renderer.h"
 #include <ncurses.h>
 
 namespace rogue {
@@ -40,12 +41,11 @@ int Map::getWidth() const {
     return width;
 }
 
-void Map::render() const {
+void Map::render(IRenderer& renderer) const {
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
             const Tile& tile = tiles[y][x];
-            attron(COLOR_PAIR(tile.colorPair));
-            mvaddch(y, x, tile.symbol);
+            renderer.drawChar(x, y, tile.symbol, tile.colorPair);
             attroff(COLOR_PAIR(tile.colorPair));
         }
     }
