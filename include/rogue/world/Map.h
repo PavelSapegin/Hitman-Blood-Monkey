@@ -4,35 +4,35 @@
 
 namespace rogue {
 
-    enum ColorPairs {
-        COLOR_DEFAULT = 1,
-        COLOR_PLAYER = 2,
-        COLOR_MONSTER = 3,
-        COLOR_WALL = 4,
-        COLOR_BLOOD = 5
+enum ColorPairs {
+  COLOR_DEFAULT = 1,
+  COLOR_PLAYER = 2,
+  COLOR_MONSTER = 3,
+  COLOR_WALL = 4,
+  COLOR_BLOOD = 5
 
-    };
+};
 
-    struct Tile {
-        char symbol;
-        int colorPair;
+struct Tile {
+  char symbol;
+  int colorPair;
+};
 
-    };
+class Map {
+public:
+  Map(int width, int height);
+  ~Map() = default;
 
-    class Map {
-    public:
-        Map(int width, int height);
-        ~Map() = default;
+  int getWidth() const;
+  int getHeight() const;
 
-        int getWidth() const;
-        int getHeight() const;
+  bool isWalkable(int x, int y) const;
+  void render(IRenderer &renderer) const;
+  void spillBlood(int x, int y);
 
-        bool isWalkable(int x, int y) const;
-        void render(IRenderer& renderer) const;
-        void spillBlood(int x, int y);
-    private:
-        int width;
-        int height;
-        std::vector<std::vector<Tile>> tiles; // Example tile representation
-    };
+private:
+  int width;
+  int height;
+  std::vector<std::vector<Tile>> tiles; // Example tile representation
+};
 } // namespace rogue
