@@ -16,16 +16,17 @@ public:
   void run(); // Main game loop
 
 private:
-  std::unique_ptr<IRenderer>
-      renderer; // Using unique_ptr for automatic memory management
+  std::unique_ptr<IRenderer> renderer;
   void handleInput();
   void render();
-
+  
   bool isRunning;
   Map map;
   Player player;
-  std::vector<std::unique_ptr<Monster>>
-      monsters; // Using unique_ptr for automatic memory management
+  std::vector<std::unique_ptr<Monster>> monsters;
+  float playerSpeed = 50.0f; // Units per second
+  float deltaTime;
+  double lastFrameTime;
 };
 
 } // namespace rogue

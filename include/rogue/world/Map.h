@@ -26,13 +26,15 @@ public:
   int getWidth() const;
   int getHeight() const;
 
-  bool isWalkable(int x, int y) const;
+  bool isWalkable(float x, float y) const;
   void render(IRenderer &renderer) const;
-  void spillBlood(int x, int y);
+  void spillBlood(float x, float y);
 
 private:
   int width;
   int height;
   std::vector<std::vector<Tile>> tiles; // Example tile representation
+  // Need to store actual tile size for coordinate conversions
+  float tileSize = 20.0f; // Each tile is 20x20 pixels
 };
 } // namespace rogue

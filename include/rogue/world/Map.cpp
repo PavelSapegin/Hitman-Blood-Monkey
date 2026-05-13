@@ -16,18 +16,23 @@ Map::Map(int width, int height) : width(width), height(height) {
   }
 };
 
-bool Map::isWalkable(int x, int y) const {
-  if (x < 0 || x >= width || y < 0 || y >= height) {
+bool Map::isWalkable(float x, float y) const {
+  int gridX = static_cast<int>(x / tileSize);
+  int gridY = static_cast<int>(y / tileSize);
+
+  if (gridX < 0 || gridX >= width || gridY < 0 || gridY >= height) {
     return false; // Out of bounds
   }
-  return tiles[y][x].symbol != '#'; // Walkable if not a wall
+  return tiles[gridY][gridX].symbol != '#'; // Walkable if not a wall
 }
 
-void Map::spillBlood(int x, int y) {
-  if (x < 0 || x >= width || y < 0 || y >= height) {
+void Map::spillBlood(float x, float y) {
+  int gridX = static_cast<int>(x / tileSize);
+  int gridY = static_cast<int>(y / tileSize);
+  if (gridX < 0 || gridX >= width || gridY < 0 || gridY >= height) {
     return; // Out of bounds
   }
-  tiles[y][x] = {'%', 2}; // Example blood tile
+  tiles[gridY][gridX] = {'%', 2}; // Example blood tile
 }
 
 int Map::getHeight() const { return height; }

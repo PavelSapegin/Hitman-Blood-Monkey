@@ -7,15 +7,15 @@ enum class MonsterType { SceletonMonkey, GoblinMonkey, MonkeyBoss };
 
 class MonsterFactory {
 public:
-  static std::unique_ptr<Monster> createMonster(MonsterType type, int x,
-                                                int y) {
+  static std::unique_ptr<Monster> createMonster(MonsterType type, float x,
+                                                float y) {
     switch (type) {
     case MonsterType::SceletonMonkey:
-      return std::make_unique<Monster>(x, y, 's', COLOR_MONSTER, 30);
+      return std::make_unique<Monster>(x, y, 's', 3, 30);
     case MonsterType::GoblinMonkey:
-      return std::make_unique<Monster>(x, y, 'g', COLOR_MONSTER, 50);
+      return std::make_unique<Monster>(x, y, 'g', 3, 50);
     case MonsterType::MonkeyBoss:
-      return std::make_unique<Monster>(x, y, 'M', COLOR_MONSTER, 100);
+      return std::make_unique<Monster>(x, y, 'M', 3, 100);
     default:
       return nullptr;
     }

@@ -2,7 +2,7 @@
 
 namespace rogue {
 
-Monster::Monster(int x, int y, char symbol, int color, int maxHp)
+Monster::Monster(float x, float y, char symbol, int color, int maxHp)
     : Entity(x, y, symbol, color, maxHp) {}
 
 void Monster::update() {

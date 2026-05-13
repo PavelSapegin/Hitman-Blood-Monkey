@@ -2,12 +2,12 @@
 
 namespace rogue {
 
-Entity::Entity(int x, int y, char symbol, int color, int maxHp)
+Entity::Entity(float x, float y, char symbol, int color, int maxHp)
     : x(x), y(y), symbol(symbol), color(color), hp(maxHp), maxHp(maxHp) {}
 
-int Entity::getX() const { return x; }
+float Entity::getX() const { return x; }
 
-int Entity::getY() const { return y; }
+float Entity::getY() const { return y; }
 
 char Entity::getSymbol() const { return symbol; }
 
@@ -24,12 +24,12 @@ void Entity::takeDamage(int damage) {
   }
 }
 
-void Entity::setPosition(int newX, int newY) {
+void Entity::setPosition(float newX, float newY) {
   x = newX;
   y = newY;
 }
 
-void Entity::move(int dx, int dy) {
+void Entity::move(float dx, float dy) {
   x += dx;
   y += dy;
 }

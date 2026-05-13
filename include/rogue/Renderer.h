@@ -8,6 +8,6 @@ public:
   virtual void shutdown() = 0;
   virtual void clear() = 0;
   virtual void refresh() = 0;
-  virtual void drawChar(int x, int y, char ch, int color) = 0;
+  virtual void drawChar(float x, float y, char ch, int color) = 0;
 };
 } // namespace rogue
