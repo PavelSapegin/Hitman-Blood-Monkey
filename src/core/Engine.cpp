@@ -4,12 +4,12 @@
 #include "../include/rogue/entities/MonsterFactory.h"
 #include <algorithm>
 #include <iostream>
-#include <ncurses.h>
+#include <raylib.h>
 #include <stdexcept>
 
 namespace rogue {
 Engine::Engine(std::unique_ptr<IRenderer> r)
-    : isRunning(true), map(80, 25), player(1, 1, '@', COLOR_PLAYER, 100) {
+    : isRunning(true), map(80, 25), player(1, 1, '@', 1, 100) {
 
   if (!r) {
     throw InitializationException("Renderer cannot be null");
@@ -28,31 +28,21 @@ Engine::Engine(std::unique_ptr<IRenderer> r)
 
 Engine::~Engine() {
   if (renderer) {
-    renderer->shutdown(); // End ncurses mode
+    renderer->shutdown();
   }
 }
 
 void Engine::handleInput() {
-  int ch = getch();
   int dx = 0, dy = 0;
   std::unique_ptr<Command> command = nullptr;
-  switch (ch) {
-  case 'q':
-    isRunning = false;
-    break;
-  case KEY_UP:
-    dy = -1;
-    break;
-  case KEY_DOWN:
-    dy = 1;
-    break;
-  case KEY_LEFT:
-    dx = -1;
-    break;
-  case KEY_RIGHT:
-    dx = 1;
-    break;
-  }
+
+  if (IsKeyPressed(KEY_UP)) dy = -1;
+  else if (IsKeyPressed(KEY_DOWN)) dy = 1;
+  else if (IsKeyPressed(KEY_LEFT)) dx = -1;
+  else if (IsKeyPressed(KEY_RIGHT)) dx = 1;
+  else if (IsKeyPressed(KEY_Q)) isRunning = false;
+
+  if (dx == 0 && dy == 0) return;
 
   int targetX = player.getX() + dx;
   int targetY = player.getY() + dy;
