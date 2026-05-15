@@ -1,0 +1,52 @@
+name: Build project
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+
+jobs:
+  build-linux:
+    name: Build on Ubuntu
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            cmake \
+            g++ \
+            pkg-config \
+            libgl1-mesa-dev \
+            libx11-dev \
+            libxcursor-dev \
+            libxrandr-dev \
+            libxinerama-dev \
+            libxi-dev \
+            libxext-dev \
+            libxfixes-dev \
+            libpulse-dev \
+            libasound2-dev \
+            libudev-dev \
+            libopenal-dev \
+            libglfw3-dev
+
+      - name: Build raylib dependency
+        working-directory: ${{ github.workspace }}
+        run: |
+          cmake -S "${{ github.workspace }}/raylib" -B "${{ github.workspace }}/raylib/build" -DCMAKE_BUILD_TYPE=Release
+          cmake --build "${{ github.workspace }}/raylib/build" --config Release -- -j
+          cmake --install "${{ github.workspace }}/raylib/build" --prefix "${{ github.workspace }}/raylib/build/install"
+
+      - name: Configure project
+        working-directory: ${{ github.workspace }}
+        run: cmake -S "${{ github.workspace }}" -B "${{ github.workspace }}/build" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${{ github.workspace }}/raylib/build/install"
+
+      - name: Build executable
+        run: cmake --build build --config Release --target testgame -- -j
