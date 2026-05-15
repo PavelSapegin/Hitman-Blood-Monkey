@@ -1,9 +1,8 @@
 #pragma once
 #include "Renderer.h"
 #include <raylib.h>
-
+#include "world/Map.h"
 namespace rogue {
-class Map;
 class RaylibRenderer : public IRenderer {
 public:
   void initialize() override;

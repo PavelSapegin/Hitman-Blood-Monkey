@@ -1,6 +1,6 @@
 #include "../include/rogue/core/Engine.h"
 #include "../include/rogue/Exceptions.h"
-#include "../include/rogue/Raylib_renderer.h" // Добавил этот инклюд
+#include "../include/rogue/Raylib_renderer.h"
 #include "../include/rogue/core/Command.h"
 #include "../include/rogue/entities/MonsterFactory.h"
 #include <algorithm>
@@ -10,6 +10,7 @@
 #include <stdexcept>
 
 namespace rogue {
+
 Engine::Engine(std::unique_ptr<IRenderer> r)
     : isRunning(true), map(80, 25), player(10.0f, 5.0f, '@', 2, 100),
       lastFrameTime(0.0), deltaTime(0.0f) {
@@ -25,85 +26,73 @@ Engine::Engine(std::unique_ptr<IRenderer> r)
       MonsterFactory::createMonster(MonsterType::SceletonMonkey, 5.0f, 5.0f));
   monsters.push_back(
       MonsterFactory::createMonster(MonsterType::GoblinMonkey, 10.0f, 10.0f));
-  monsters.push_back(
-      MonsterFactory::createMonster(MonsterType::MonkeyBoss, 15.0f, 15.0f));
 }
 
 Engine::~Engine() {
-  if (renderer) {
-    renderer->shutdown();
-  }
+  renderer->shutdown();
 }
 
 void Engine::handleInput() {
   float dx = 0.0f, dy = 0.0f;
-  float moveAmount =
-      (playerSpeed * 0.2f) * deltaTime; // Adjust movement based on deltaTime
+  float moveAmount = playerSpeed * deltaTime;
 
-  // Izometric movement: W/S move diagonally up/down, A/D move diagonally
-  // left/right W: (-1, -1), S: (1, 1), A: (-1, 1), D: (1, -1)
-  if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) {
-    dx -= moveAmount;
-    dy -= moveAmount;
-  } else if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN)) {
-    dx += moveAmount;
-    dy += moveAmount;
-  }
-
-  if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) {
-    dx -= moveAmount;
-    dy += moveAmount;
-  } else if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) {
-    dx += moveAmount;
-    dy -= moveAmount;
-  }
+  // Input handling for movement
+  if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP))    { dx -= 1.0f; dy -= 1.0f; }
+  else if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN)) { dx += 1.0f; dy += 1.0f; }
+  
+  if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT))  { dx -= 1.0f; dy += 1.0f; }
+  else if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) { dx += 1.0f; dy -= 1.0f; }
 
   if (IsKeyPressed(KEY_Q)) {
     isRunning = false;
     return;
   }
 
-  if (dx == 0.0f && dy == 0.0f)
-    return;
+  // Normalize movement vector if diagonal movement occurs
+  if (dx != 0.0f || dy != 0.0f) {
+    float length = std::sqrt(dx * dx + dy * dy);
+    // Normalize to prevent faster diagonal movement
+    if (length > 0) { 
+      dx /= length;
+      dy /= length;
+    }
+    
+    // Apply speed
+    dx *= moveAmount;
+    dy *= moveAmount;
 
-  float targetX = player.getX() + dx;
-  float targetY = player.getY() + dy;
+    float targetX = player.getX() + dx;
+    float targetY = player.getY() + dy;
 
-  // Collision with walls (grid-based)
-  int tileX = static_cast<int>(std::round(targetX));
-  int tileY = static_cast<int>(std::round(targetY));
+    // Collision with walls (grid-based)
+    int tileX = static_cast<int>(std::round(targetX));
+    int tileY = static_cast<int>(std::round(targetY));
 
-  // Clamp to map bounds
-  if (tileX < 0)
-    tileX = 0;
-  if (tileX >= map.getWidth())
-    tileX = map.getWidth() - 1;
-  if (tileY < 0)
-    tileY = 0;
-  if (tileY >= map.getHeight())
-    tileY = map.getHeight() - 1;
+    // Clamp to map bounds
+    if (tileX < 0) tileX = 0;
+    if (tileX >= map.getWidth()) tileX = map.getWidth() - 1;
+    if (tileY < 0) tileY = 0;
+    if (tileY >= map.getHeight()) tileY = map.getHeight() - 1;
 
-  if (!map.isWalkable(tileX, tileY)) {
-    return; // Blocked by wall
-  }
+    if (!map.isWalkable(tileX, tileY)) {
+      return; // Blocked by wall
+    }
 
-  // Check for monster at target position (adjacent tile)
-  auto targetMonster = std::find_if(
-      monsters.begin(), monsters.end(),
-      [&](const std::unique_ptr<Monster> &monster) {
-        float mx = monster->getX();
-        float my = monster->getY();
-        return std::abs(mx - targetX) < 0.5f && std::abs(my - targetY) < 0.5f;
-      });
+    // Check for monster at target position
+    auto targetMonster = std::find_if(
+        monsters.begin(), monsters.end(),
+        [&](const std::unique_ptr<Monster> &monster) {
+          float mx = monster->getX();
+          float my = monster->getY();
+          return std::abs(mx - targetX) < 0.5f && std::abs(my - targetY) < 0.5f;
+        });
 
-  if (targetMonster != monsters.end()) {
-    auto command = std::make_unique<AttackCommand>(targetMonster->get());
-    command->execute(player, map);
-  } else {
-    player.move(dx, dy);
-    TraceLog(LOG_INFO,
-             "Moved to (%.1f, %.1f) delta=(%.2f, %.2f) speed=%.0f dt=%.4f",
-             player.getX(), player.getY(), dx, dy, playerSpeed, deltaTime);
+    if (targetMonster != monsters.end()) {
+      auto command = std::make_unique<AttackCommand>(targetMonster->get());
+      command->execute(player, map);
+    } else {
+      player.move(dx, dy);
+    }
   }
 }
 
