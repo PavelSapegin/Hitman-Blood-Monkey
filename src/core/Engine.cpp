@@ -37,9 +37,9 @@ Engine::~Engine() {
 
 void Engine::handleInput() {
   float dx = 0.0f, dy = 0.0f;
-  float moveAmount = (playerSpeed * 0.2f) * deltaTime; // Замедлили еще сильнее
+  float moveAmount = (playerSpeed * 0.2f) * deltaTime; // Adjust movement based on deltaTime
 
-  // Изометрическое управление:
+  // Izometric movement: W/S move diagonally up/down, A/D move diagonally left/right
   // W: (-1, -1), S: (1, 1), A: (-1, 1), D: (1, -1)
   if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) {
     dx -= moveAmount;
@@ -129,26 +129,34 @@ void Engine::renderDebugInfo() {
 void Engine::render() {
   renderer->clear();
 
-  // Безопасно пытаемся привести к RaylibRenderer
   auto rayRenderer = dynamic_cast<RaylibRenderer *>(renderer.get());
-
   if (rayRenderer) {
-    rayRenderer->beginMapRendering();
+    // Update camera target
+    rayRenderer->updateCamera(player.getX(), player.getY());
+    
+    // Begin camera mode for everything
+    BeginMode2D(rayRenderer->getCamera());
+
+    // Draw map and dynamic objects
     map.render(*renderer);
-    rayRenderer->endMapRendering();
-    rayRenderer->drawMapTexture();
+    renderer->drawChar(player.getX(), player.getY(), player.getSymbol(),
+                       player.getColor());
+    for (const auto &monster : monsters) {
+      renderer->drawChar(monster->getX(), monster->getY(), monster->getSymbol(),
+                         monster->getColor());
+    }
+    
+    EndMode2D(); 
   } else {
-    // Фолбэк для других типов (если остались)
     map.render(*renderer);
+    renderer->drawChar(player.getX(), player.getY(), player.getSymbol(),
+                       player.getColor());
+    for (const auto &monster : monsters) {
+      renderer->drawChar(monster->getX(), monster->getY(), monster->getSymbol(),
+                         monster->getColor());
+    }
   }
 
-  // Рисуем динамические объекты
-  renderer->drawChar(player.getX(), player.getY(), player.getSymbol(),
-                     player.getColor());
-  for (const auto &monster : monsters) {
-    renderer->drawChar(monster->getX(), monster->getY(), monster->getSymbol(),
-                       monster->getColor());
-  }
   // Debug overlay drawn before EndDrawing
   renderDebugInfo();
   renderer->refresh();
