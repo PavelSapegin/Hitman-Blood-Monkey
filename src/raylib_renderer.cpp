@@ -6,9 +6,11 @@ namespace rogue {
 void RaylibRenderer::initialize() {
     InitWindow(screenWidth, screenHeight, "Hitman Blood Monkey");
     SetTargetFPS(60);
+    mapTexture = LoadRenderTexture(screenWidth, screenHeight);
 }
 
 void RaylibRenderer::shutdown() {
+    UnloadRenderTexture(mapTexture);
     CloseWindow();
 }
 
@@ -32,8 +34,16 @@ void RaylibRenderer::drawChar(float x, float y, char ch, int color) {
     else if (color == 5) tileColor = MAROON; // Blood
 
     // Draw isometric tile (diamond shape)
-    DrawPoly(isoPos, 4, 25.0f, 45.0f, tileColor);
-    DrawPolyLines(isoPos, 4, 25.0f, 45.0f, DARKGRAY);
+    if (color == 4) { // Walls
+        // Draw base tile
+        DrawPoly(isoPos, 4, 25.0f, 45.0f, DARKGRAY);
+        // Draw the wall volume by shifting upward
+        Vector2 topPos = { isoPos.x, isoPos.y - 40.0f };
+        DrawRectangle(static_cast<int>(topPos.x - 15), static_cast<int>(topPos.y - 30), 30, 40, tileColor);
+        DrawPolyLines(isoPos, 4, 25.0f, 45.0f, DARKGRAY);
+    } else { // Floor
+        DrawPoly(isoPos, 4, 25.0f, 45.0f, tileColor);
+    }
 
     // Draw symbol on top
     if (ch != ' ') {
@@ -50,5 +60,21 @@ Vector2 RaylibRenderer::worldToIsometric(float x, float y) {
     float isoY = (x + y) * (tileHeight / 2.0f);
     
     return { isoX + screenWidth / 2.0f, isoY + 100.0f };
+}
+
+void RaylibRenderer::beginMapRendering() {
+    BeginTextureMode(mapTexture);
+    ClearBackground(BLACK);
+}
+
+void RaylibRenderer::endMapRendering() {
+    EndTextureMode();
+    isMapRendered = true;
+}
+
+void RaylibRenderer::drawMapTexture() {
+    if (isMapRendered) {
+        DrawTextureRec(mapTexture.texture, (Rectangle){ 0, 0, (float)mapTexture.texture.width, (float)-mapTexture.texture.height }, (Vector2){ 0, 0 }, WHITE);
+    }
 }
 } // namespace rogue
