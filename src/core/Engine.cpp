@@ -2,6 +2,7 @@
 #include "../include/rogue/Exceptions.h"
 #include "../include/rogue/core/Command.h"
 #include "../include/rogue/entities/MonsterFactory.h"
+#include "../include/rogue/Raylib_renderer.h" // Добавил этот инклюд
 #include <algorithm>
 #include <iostream>
 #include <raylib.h>
@@ -57,8 +58,8 @@ void Engine::handleInput() {
   float targetY = player.getY() + dy;
 
   // Collision with walls (grid-based)
-  int tileX = static_cast<int>(targetX);
-  int tileY = static_cast<int>(targetY);
+  int tileX = static_cast<int>(std::round(targetX));
+  int tileY = static_cast<int>(std::round(targetY));
 
   // Clamp to map bounds
   if (tileX < 0) tileX = 0;
@@ -111,7 +112,21 @@ void Engine::renderDebugInfo() {
 
 void Engine::render() {
   renderer->clear();
-  map.render(*renderer);
+  
+  // Безопасно пытаемся привести к RaylibRenderer
+  auto rayRenderer = dynamic_cast<RaylibRenderer*>(renderer.get());
+  
+  if (rayRenderer) {
+      rayRenderer->beginMapRendering();
+      map.render(*renderer);
+      rayRenderer->endMapRendering();
+      rayRenderer->drawMapTexture();
+  } else {
+      // Фолбэк для других типов (если остались)
+      map.render(*renderer);
+  }
+
+  // Рисуем динамические объекты
   renderer->drawChar(player.getX(), player.getY(), player.getSymbol(),
                      player.getColor());
   for (const auto &monster : monsters) {
