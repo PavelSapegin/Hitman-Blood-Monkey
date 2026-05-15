@@ -36,12 +36,12 @@ void Engine::handleInput() {
   float dx = 0.0f, dy = 0.0f;
   float moveAmount = playerSpeed * deltaTime;
 
-  // Input handling for movement
+  // Input handling for movement (independent checks for each direction)
   if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP))    { dx -= 1.0f; dy -= 1.0f; }
-  else if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN)) { dx += 1.0f; dy += 1.0f; }
+  if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN)) { dx += 1.0f; dy += 1.0f; }
   
   if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT))  { dx -= 1.0f; dy += 1.0f; }
-  else if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) { dx += 1.0f; dy -= 1.0f; }
+  if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) { dx += 1.0f; dy -= 1.0f; }
 
   if (IsKeyPressed(KEY_Q)) {
     isRunning = false;
