@@ -148,6 +148,7 @@ void Engine::render() {
     
     EndMode2D(); 
   } else {
+    // Fallback for non-Raylib renderers
     map.render(*renderer);
     renderer->drawChar(player.getX(), player.getY(), player.getSymbol(),
                        player.getColor());

@@ -12,19 +12,15 @@ public:
   void refresh() override;
   void drawChar(float x, float y, char ch, int color) override;
   Vector2 worldToIsometric(float x, float y);
-  void beginMapRendering();
-  void endMapRendering();
-    void drawMapTexture();
-    void drawIsometricMap(const Map& map);
-    void updateCamera(float x, float y); 
-    Camera2D& getCamera(); // Declare getter for camera
+  
+  // Camera control
+  void updateCamera(float x, float y); 
+  Camera2D& getCamera();
 
 private:
-    Camera2D camera; // Camera object
-    RenderTexture2D mapTexture;
-    bool isMapRendered = false;
-    const float TILE_SIZE = 20.0f;
-    const int screenWidth = 800;
-    const int screenHeight = 600;
+  Camera2D camera;
+  const float TILE_SIZE = 20.0f;
+  const int screenWidth = 800;
+  const int screenHeight = 600;
 };
 } // namespace rogue

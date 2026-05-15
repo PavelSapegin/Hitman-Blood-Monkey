@@ -6,7 +6,6 @@ namespace rogue {
 void RaylibRenderer::initialize() {
     InitWindow(screenWidth, screenHeight, "Hitman Blood Monkey");
     SetTargetFPS(60);
-    mapTexture = LoadRenderTexture(screenWidth, screenHeight);
 
     // Initialize camera
     camera.target = { 0.0f, 0.0f };
@@ -16,7 +15,6 @@ void RaylibRenderer::initialize() {
 }
 
 void RaylibRenderer::shutdown() {
-    UnloadRenderTexture(mapTexture);
     CloseWindow();
 }
 
@@ -38,7 +36,6 @@ Camera2D& RaylibRenderer::getCamera() {
 void RaylibRenderer::updateCamera(float x, float y) {
     Vector2 isoPos = worldToIsometric(x, y);
     camera.target = isoPos;
-    TraceLog(LOG_INFO, "Camera target updated to: %.2f, %.2f (world: %.2f, %.2f)", isoPos.x, isoPos.y, x, y);
 }
 
 void RaylibRenderer::drawChar(float x, float y, char ch, int color) {
@@ -87,22 +84,5 @@ Vector2 RaylibRenderer::worldToIsometric(float x, float y) {
     return { isoX, isoY + 100.0f };
 }
 
-void RaylibRenderer::beginMapRendering() {
-  BeginTextureMode(mapTexture);
-  ClearBackground(BLACK);
-}
-
-void RaylibRenderer::endMapRendering() {
-  EndTextureMode();
-  isMapRendered = true;
-}
-
-void RaylibRenderer::drawMapTexture() {
-  if (isMapRendered) {
-    DrawTextureRec(mapTexture.texture,
-                   (Rectangle){0, 0, (float)mapTexture.texture.width,
-                               (float)-mapTexture.texture.height},
-                   (Vector2){0, 0}, WHITE);
-  }
-}
+} // namespace rogue
 } // namespace rogue
