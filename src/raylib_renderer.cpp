@@ -3,6 +3,7 @@
 #include <string>
 
 namespace rogue {
+
 void RaylibRenderer::initialize() {
     InitWindow(screenWidth, screenHeight, "Hitman Blood Monkey");
     SetTargetFPS(60);
@@ -27,7 +28,7 @@ void RaylibRenderer::refresh() {
     EndDrawing();
 }
 
-// Add a getter for the camera
+// Accessor for the camera
 Camera2D& RaylibRenderer::getCamera() {
     return camera;
 }
@@ -84,5 +85,4 @@ Vector2 RaylibRenderer::worldToIsometric(float x, float y) {
     return { isoX, isoY + 100.0f };
 }
 
-} // namespace rogue
 } // namespace rogue
