@@ -19,12 +19,13 @@ private:
   std::unique_ptr<IRenderer> renderer;
   void handleInput();
   void render();
-  
+  void renderDebugInfo();
+
   bool isRunning;
   Map map;
   Player player;
   std::vector<std::unique_ptr<Monster>> monsters;
-  float playerSpeed = 50.0f; // Units per second
+  float playerSpeed = 200.0f; // Units per second
   float deltaTime;
   double lastFrameTime;
 };

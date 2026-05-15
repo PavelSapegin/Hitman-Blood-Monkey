@@ -3,22 +3,24 @@
 
 namespace rogue {
 Map::Map(int width, int height) : width(width), height(height) {
-  // Initialize the map with default tiles (for simplicity)
+  // Initialize the map with default tiles
   tiles.resize(height, std::vector<Tile>(width, {' ', 1}));
 
+  // Walls (color 4 = COLOR_WALL)
   for (int x = 0; x < width; ++x) {
-    tiles[0][x] = {'#', 1};          // Top wall
-    tiles[height - 1][x] = {'#', 1}; // Bottom wall
+    tiles[0][x] = {'#', 4};
+    tiles[height - 1][x] = {'#', 4};
   }
   for (int y = 0; y < height; ++y) {
-    tiles[y][0] = {'#', 1};         // Left wall
-    tiles[y][width - 1] = {'#', 1}; // Right wall
+    tiles[y][0] = {'#', 4};
+    tiles[y][width - 1] = {'#', 4};
   }
 };
 
 bool Map::isWalkable(float x, float y) const {
-  int gridX = static_cast<int>(x / tileSize);
-  int gridY = static_cast<int>(y / tileSize);
+  // Coordinates are in cell space (float for smooth movement)
+  int gridX = static_cast<int>(x);
+  int gridY = static_cast<int>(y);
 
   if (gridX < 0 || gridX >= width || gridY < 0 || gridY >= height) {
     return false; // Out of bounds
@@ -27,12 +29,12 @@ bool Map::isWalkable(float x, float y) const {
 }
 
 void Map::spillBlood(float x, float y) {
-  int gridX = static_cast<int>(x / tileSize);
-  int gridY = static_cast<int>(y / tileSize);
+  int gridX = static_cast<int>(x);
+  int gridY = static_cast<int>(y);
   if (gridX < 0 || gridX >= width || gridY < 0 || gridY >= height) {
     return; // Out of bounds
   }
-  tiles[gridY][gridX] = {'%', 2}; // Example blood tile
+  tiles[gridY][gridX] = {'%', 5}; // Blood tile (color 5 = COLOR_BLOOD)
 }
 
 int Map::getHeight() const { return height; }

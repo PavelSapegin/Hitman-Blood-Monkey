@@ -22,6 +22,8 @@ void RaylibRenderer::refresh() {
 }
 
 void RaylibRenderer::drawChar(float x, float y, char ch, int color) {
+    Vector2 isoPos = worldToIsometric(x, y);
+
     // Map color index to Raylib Colors
     Color tileColor = LIGHTGRAY; // Floor/Default
     if (color == 4) tileColor = GRAY;      // Walls
@@ -29,16 +31,24 @@ void RaylibRenderer::drawChar(float x, float y, char ch, int color) {
     else if (color == 3) tileColor = RED;  // Monsters
     else if (color == 5) tileColor = MAROON; // Blood
 
-    // Draw tile block
-    DrawRectangle(static_cast<int>(x * TILE_SIZE), static_cast<int>(y * TILE_SIZE), static_cast<int>(TILE_SIZE), static_cast<int>(TILE_SIZE), tileColor);
-    
-    // Draw outline for tiles
-    DrawRectangleLines(static_cast<int>(x * TILE_SIZE), static_cast<int>(y * TILE_SIZE), static_cast<int>(TILE_SIZE), static_cast<int>(TILE_SIZE), DARKGRAY);
+    // Draw isometric tile (diamond shape)
+    DrawPoly(isoPos, 4, 25.0f, 45.0f, tileColor);
+    DrawPolyLines(isoPos, 4, 25.0f, 45.0f, DARKGRAY);
 
-    // Draw symbol on top for debugging/classic feel
+    // Draw symbol on top
     if (ch != ' ') {
         std::string s(1, ch);
-        DrawText(s.c_str(), static_cast<int>(x * TILE_SIZE + TILE_SIZE / 4), static_cast<int>(y * TILE_SIZE + TILE_SIZE / 4), static_cast<int>(TILE_SIZE), BLACK);
+        DrawText(s.c_str(), static_cast<int>(isoPos.x - 5), static_cast<int>(isoPos.y - 5), 20, BLACK);
     }
+}
+
+Vector2 RaylibRenderer::worldToIsometric(float x, float y) {
+    float tileWidth = 40.0f;
+    float tileHeight = 20.0f;
+    
+    float isoX = (x - y) * (tileWidth / 2.0f);
+    float isoY = (x + y) * (tileHeight / 2.0f);
+    
+    return { isoX + screenWidth / 2.0f, isoY + 100.0f };
 }
 } // namespace rogue
