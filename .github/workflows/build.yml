@@ -41,6 +41,7 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: |
           cmake -S "${{ github.workspace }}/raylib" -B "${{ github.workspace }}/raylib/build" -DCMAKE_BUILD_TYPE=Release
+          cmake --build "${{ github.workspace }}/raylib/build" --config Release -- -j
           cmake --install "${{ github.workspace }}/raylib/build" --prefix "${{ github.workspace }}/raylib/build/install"
 
       - name: Configure project
