@@ -37,10 +37,11 @@ Engine::~Engine() {
 
 void Engine::handleInput() {
   float dx = 0.0f, dy = 0.0f;
-  float moveAmount = (playerSpeed * 0.2f) * deltaTime; // Adjust movement based on deltaTime
+  float moveAmount =
+      (playerSpeed * 0.2f) * deltaTime; // Adjust movement based on deltaTime
 
-  // Izometric movement: W/S move diagonally up/down, A/D move diagonally left/right
-  // W: (-1, -1), S: (1, 1), A: (-1, 1), D: (1, -1)
+  // Izometric movement: W/S move diagonally up/down, A/D move diagonally
+  // left/right W: (-1, -1), S: (1, 1), A: (-1, 1), D: (1, -1)
   if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) {
     dx -= moveAmount;
     dy -= moveAmount;
@@ -133,7 +134,7 @@ void Engine::render() {
   if (rayRenderer) {
     // Update camera target
     rayRenderer->updateCamera(player.getX(), player.getY());
-    
+
     // Begin camera mode for everything
     BeginMode2D(rayRenderer->getCamera());
 
@@ -145,8 +146,8 @@ void Engine::render() {
       renderer->drawChar(monster->getX(), monster->getY(), monster->getSymbol(),
                          monster->getColor());
     }
-    
-    EndMode2D(); 
+
+    EndMode2D();
   } else {
     // Fallback for non-Raylib renderers
     map.render(*renderer);
