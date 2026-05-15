@@ -1,13 +1,13 @@
 #include "../include/rogue/core/Engine.h"
 #include "../include/rogue/Exceptions.h"
+#include "../include/rogue/Raylib_renderer.h" // Добавил этот инклюд
 #include "../include/rogue/core/Command.h"
 #include "../include/rogue/entities/MonsterFactory.h"
-#include "../include/rogue/Raylib_renderer.h" // Добавил этот инклюд
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <raylib.h>
 #include <stdexcept>
-#include <cmath>
 
 namespace rogue {
 Engine::Engine(std::unique_ptr<IRenderer> r)
@@ -41,18 +41,29 @@ void Engine::handleInput() {
 
   // Изометрическое управление:
   // W: (-1, -1), S: (1, 1), A: (-1, 1), D: (1, -1)
-  if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP))    { dx -= moveAmount; dy -= moveAmount; }
-  else if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN)) { dx += moveAmount; dy += moveAmount; }
-  
-  if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT))  { dx -= moveAmount; dy += moveAmount; }
-  else if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) { dx += moveAmount; dy -= moveAmount; }
+  if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) {
+    dx -= moveAmount;
+    dy -= moveAmount;
+  } else if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN)) {
+    dx += moveAmount;
+    dy += moveAmount;
+  }
+
+  if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) {
+    dx -= moveAmount;
+    dy += moveAmount;
+  } else if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) {
+    dx += moveAmount;
+    dy -= moveAmount;
+  }
 
   if (IsKeyPressed(KEY_Q)) {
     isRunning = false;
     return;
   }
 
-  if (dx == 0.0f && dy == 0.0f) return;
+  if (dx == 0.0f && dy == 0.0f)
+    return;
 
   float targetX = player.getX() + dx;
   float targetY = player.getY() + dy;
@@ -62,10 +73,14 @@ void Engine::handleInput() {
   int tileY = static_cast<int>(std::round(targetY));
 
   // Clamp to map bounds
-  if (tileX < 0) tileX = 0;
-  if (tileX >= map.getWidth()) tileX = map.getWidth() - 1;
-  if (tileY < 0) tileY = 0;
-  if (tileY >= map.getHeight()) tileY = map.getHeight() - 1;
+  if (tileX < 0)
+    tileX = 0;
+  if (tileX >= map.getWidth())
+    tileX = map.getWidth() - 1;
+  if (tileY < 0)
+    tileY = 0;
+  if (tileY >= map.getHeight())
+    tileY = map.getHeight() - 1;
 
   if (!map.isWalkable(tileX, tileY)) {
     return; // Blocked by wall
@@ -85,7 +100,8 @@ void Engine::handleInput() {
     command->execute(player, map);
   } else {
     player.move(dx, dy);
-    TraceLog(LOG_INFO, "Moved to (%.1f, %.1f) delta=(%.2f, %.2f) speed=%.0f dt=%.4f",
+    TraceLog(LOG_INFO,
+             "Moved to (%.1f, %.1f) delta=(%.2f, %.2f) speed=%.0f dt=%.4f",
              player.getX(), player.getY(), dx, dy, playerSpeed, deltaTime);
   }
 }
@@ -94,36 +110,36 @@ void Engine::renderDebugInfo() {
   // Draw debug info on screen
   DrawText(TextFormat("FPS: %d", GetFPS()), 10, 10, 20, YELLOW);
   DrawText(TextFormat("Delta: %.4f", deltaTime), 10, 35, 20, YELLOW);
-  DrawText(TextFormat("Player: %.1f, %.1f", player.getX(), player.getY()), 10, 60, 20, YELLOW);
+  DrawText(TextFormat("Player: %.1f, %.1f", player.getX(), player.getY()), 10,
+           60, 20, YELLOW);
   DrawText(TextFormat("Speed: %.0f u/s", playerSpeed), 10, 85, 20, YELLOW);
   float moveAmount = playerSpeed * deltaTime;
   DrawText(TextFormat("Move/frame: %.2f", moveAmount), 10, 110, 20, YELLOW);
 
   // Show key states
-  DrawText(TextFormat("W:%d A:%d S:%d D:%d",
-      IsKeyDown(KEY_W), IsKeyDown(KEY_A),
-      IsKeyDown(KEY_S), IsKeyDown(KEY_D)),
-      10, 140, 20, YELLOW);
-  DrawText(TextFormat("UP:%d LT:%d DN:%d RT:%d",
-      IsKeyDown(KEY_UP), IsKeyDown(KEY_LEFT),
-      IsKeyDown(KEY_DOWN), IsKeyDown(KEY_RIGHT)),
-      10, 165, 20, YELLOW);
+  DrawText(TextFormat("W:%d A:%d S:%d D:%d", IsKeyDown(KEY_W), IsKeyDown(KEY_A),
+                      IsKeyDown(KEY_S), IsKeyDown(KEY_D)),
+           10, 140, 20, YELLOW);
+  DrawText(TextFormat("UP:%d LT:%d DN:%d RT:%d", IsKeyDown(KEY_UP),
+                      IsKeyDown(KEY_LEFT), IsKeyDown(KEY_DOWN),
+                      IsKeyDown(KEY_RIGHT)),
+           10, 165, 20, YELLOW);
 }
 
 void Engine::render() {
   renderer->clear();
-  
+
   // Безопасно пытаемся привести к RaylibRenderer
-  auto rayRenderer = dynamic_cast<RaylibRenderer*>(renderer.get());
-  
+  auto rayRenderer = dynamic_cast<RaylibRenderer *>(renderer.get());
+
   if (rayRenderer) {
-      rayRenderer->beginMapRendering();
-      map.render(*renderer);
-      rayRenderer->endMapRendering();
-      rayRenderer->drawMapTexture();
+    rayRenderer->beginMapRendering();
+    map.render(*renderer);
+    rayRenderer->endMapRendering();
+    rayRenderer->drawMapTexture();
   } else {
-      // Фолбэк для других типов (если остались)
-      map.render(*renderer);
+    // Фолбэк для других типов (если остались)
+    map.render(*renderer);
   }
 
   // Рисуем динамические объекты
