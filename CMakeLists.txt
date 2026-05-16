@@ -15,7 +15,7 @@ add_executable(testgame
     src/raylib_renderer.cpp
     include/rogue/entities/Entity.cpp
     include/rogue/entities/Monster.cpp
-    include/rogue/entities/Player.cpp
+    src/entities/Player.cpp
     include/rogue/world/Map.cpp
     include/rogue/core/Command.cpp
 )
