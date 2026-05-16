@@ -1,7 +1,6 @@
 #include "../include/rogue/core/Engine.h"
 #include "../include/rogue/Exceptions.h"
 #include "../include/rogue/Renderer.h"
-#include "../include/rogue/core/Command.h"
 #include "../include/rogue/entities/Monster.h"
 #include "../include/rogue/entities/MonsterFactory.h"
 #include "../include/rogue/entities/Player.h"
@@ -9,7 +8,6 @@
 #include <cmath>
 #include <iostream>
 #include <raylib.h>
-#include <stdexcept>
 
 namespace rogue {
 
