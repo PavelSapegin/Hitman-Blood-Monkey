@@ -17,8 +17,16 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y cmake g++ build-essential libraylib-dev libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev
-
+        sudo apt-get install -y cmake g++ build-essential libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev
+        
+        # Скачиваем, собираем и устанавливаем Raylib в систему
+        git clone --depth 1 --branch 5.0 https://github.com/raysan5/raylib.git
+        cd raylib
+        cmake -B build -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release
+        cmake --build build
+        sudo cmake --install build
+        cd ..
+        
     - name: Configure CMake
 
       run: cmake -B build -DCMAKE_BUILD_TYPE=Release
