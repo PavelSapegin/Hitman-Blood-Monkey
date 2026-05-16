@@ -5,6 +5,7 @@
 #include "../include/rogue/entities/MonsterFactory.h"
 #include "../include/rogue/entities/Player.h"
 #include "../include/rogue/ParticleSystem.h"
+#include "../include/rogue/TextureManager.h"
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -21,6 +22,13 @@ Engine::Engine(std::unique_ptr<IRenderer> r)
   }
   renderer = std::move(r);
   renderer->initialize();
+  auto& tm = TextureManager::getInstance();
+  tm.loadTexture("wall",    "../assets/tile_0040.png");
+  tm.loadTexture("floor",   "../assets/tile_0049.png");
+  tm.loadTexture("player",  "../assets/tile_0088.png");
+  tm.loadTexture("monster1","../assets/tile_0109.png");
+  tm.loadTexture("monster2","../assets/tile_0111.png");
+  tm.loadTexture("boss",    "../assets/tile_0108.png");
 
   monsters.push_back(
       MonsterFactory::createMonster(MonsterType::SceletonMonkey, 5.0f, 5.0f));
@@ -30,7 +38,10 @@ Engine::Engine(std::unique_ptr<IRenderer> r)
       MonsterFactory::createMonster(MonsterType::MonkeyBoss, 15.0f, 15.0f));
 }
 
-Engine::~Engine() { renderer->shutdown(); }
+Engine::~Engine() { 
+  TextureManager::getInstance().unloadAll();
+  renderer->shutdown(); 
+}
 
 void Engine::handleInput() {
   float dx = 0.0f, dy = 0.0f;

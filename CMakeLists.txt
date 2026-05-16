@@ -18,6 +18,8 @@ add_executable(testgame
     src/entities/Player.cpp
     include/rogue/world/Map.cpp
     include/rogue/core/Command.cpp
+    src/ParticleSystem.cpp
+    include/rogue/TextureManager.h
 )
 
 target_link_libraries(testgame raylib)

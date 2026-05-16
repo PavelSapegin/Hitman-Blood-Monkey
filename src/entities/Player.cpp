@@ -52,13 +52,10 @@ void Player::update() {
 
   constexpr float collisionRadius = 0.35f;
   auto canMoveTo = [&](float testX, float testY) {
-    return mapPtr->isWalkable(testX + collisionRadius,
-                              testY + collisionRadius) &&
-           mapPtr->isWalkable(testX - collisionRadius,
-                              testY + collisionRadius) &&
-           mapPtr->isWalkable(testX + collisionRadius,
-                              testY - collisionRadius) &&
-           mapPtr->isWalkable(testX - collisionRadius, testY - collisionRadius);
+    return mapPtr->isWalkable(testX + collisionRadius, testY) &&
+           mapPtr->isWalkable(testX - collisionRadius, testY) &&
+           mapPtr->isWalkable(testX, testY + collisionRadius) &&
+           mapPtr->isWalkable(testX, testY - collisionRadius);
   };
 
   int steps = std::max(1, static_cast<int>(std::ceil(
