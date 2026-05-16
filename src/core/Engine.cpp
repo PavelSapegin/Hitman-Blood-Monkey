@@ -2,9 +2,9 @@
 #include "../include/rogue/Exceptions.h"
 #include "../include/rogue/Renderer.h"
 #include "../include/rogue/core/Command.h"
+#include "../include/rogue/entities/Monster.h"
 #include "../include/rogue/entities/MonsterFactory.h"
 #include "../include/rogue/entities/Player.h"
-#include "../include/rogue/entities/Monster.h"
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -31,17 +31,23 @@ Engine::Engine(std::unique_ptr<IRenderer> r)
       MonsterFactory::createMonster(MonsterType::MonkeyBoss, 15.0f, 15.0f));
 }
 
-Engine::~Engine() {
-  renderer->shutdown();
-}
+Engine::~Engine() { renderer->shutdown(); }
 
 void Engine::handleInput() {
   float dx = 0.0f, dy = 0.0f;
-  
-  if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP))    { dy -= 1.0f; }
-  if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN)) { dy += 1.0f; }
-  if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT))  { dx -= 1.0f; }
-  if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) { dx += 1.0f; }
+
+  if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) {
+    dy -= 1.0f;
+  }
+  if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN)) {
+    dy += 1.0f;
+  }
+  if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) {
+    dx -= 1.0f;
+  }
+  if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) {
+    dx += 1.0f;
+  }
 
   player.processInput(dx, dy, deltaTime);
 
@@ -52,19 +58,21 @@ void Engine::handleInput() {
 
 void Engine::renderDebugInfo() {
   DrawText(TextFormat("FPS: %d", GetFPS()), 10, 10, 20, YELLOW);
-  DrawText(TextFormat("Player: %.1f, %.1f", player.getX(), player.getY()), 10, 30, 20, YELLOW);
+  DrawText(TextFormat("Player: %.1f, %.1f", player.getX(), player.getY()), 10,
+           30, 20, YELLOW);
 }
 
 void Engine::render() {
   renderer->clear();
-  
+
   renderer->setCameraTarget(player.getX(), player.getY());
   renderer->beginScene();
 
-  std::vector<Entity*> allEntities;
+  std::vector<Entity *> allEntities;
   allEntities.push_back(&player);
-  for (auto& m : monsters) {
-    if (!m->isDead()) allEntities.push_back(m.get());
+  for (auto &m : monsters) {
+    if (!m->isDead())
+      allEntities.push_back(m.get());
   }
 
   renderer->renderMap(map, allEntities);
@@ -81,10 +89,11 @@ void Engine::run() {
 
       handleInput();
 
-      std::vector<Entity*> allEntities;
+      std::vector<Entity *> allEntities;
       allEntities.push_back(&player);
-      for (auto& m : monsters) {
-        if (!m->isDead()) allEntities.push_back(m.get());
+      for (auto &m : monsters) {
+        if (!m->isDead())
+          allEntities.push_back(m.get());
       }
 
       player.setContext(map, allEntities, deltaTime);

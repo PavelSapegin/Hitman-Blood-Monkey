@@ -19,21 +19,21 @@ struct Tile {
 
 class Map {
 public:
-    Map(int width, int height);
-    ~Map() = default;
+  Map(int width, int height);
+  ~Map() = default;
 
-    bool isWalkable(float x, float y) const;
-    void spillBlood(float x, float y);
-    int getWidth() const;
-    int getHeight() const;
+  bool isWalkable(float x, float y) const;
+  void spillBlood(float x, float y);
+  int getWidth() const;
+  int getHeight() const;
 
-    const Tile& getTile(int x, int y) const;
-    void render(IRenderer &renderer) const;
+  const Tile &getTile(int x, int y) const;
+  void render(IRenderer &renderer) const;
 
 private:
-    int width;
-    int height;
-    std::vector<std::vector<Tile>> tiles;
+  int width;
+  int height;
+  std::vector<std::vector<Tile>> tiles;
 };
 
 } // namespace rogue
