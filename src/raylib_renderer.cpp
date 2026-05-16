@@ -27,68 +27,68 @@ void RaylibRenderer::clear() {
 void RaylibRenderer::refresh() { EndDrawing(); }
 
 Vector2 RaylibRenderer::worldToScreen(float x, float y) {
-    return { x * TILE_SIZE, y * TILE_SIZE };
+  return {x * TILE_SIZE, y * TILE_SIZE};
 }
 
-void RaylibRenderer::renderMap(const Map &map, const std::vector<Entity*>& entities) {
-    auto& tm = TextureManager::getInstance();
+void RaylibRenderer::renderMap(const Map &map,
+                               const std::vector<Entity *> &entities) {
+  auto &tm = TextureManager::getInstance();
 
-    for (int y = 0; y < map.getHeight(); ++y) {
-        for (int x = 0; x < map.getWidth(); ++x) {
-            const Tile& tile = map.getTile(x, y);
-            Vector2 screenPos = worldToScreen((float)x, (float)y);
+  for (int y = 0; y < map.getHeight(); ++y) {
+    for (int x = 0; x < map.getWidth(); ++x) {
+      const Tile &tile = map.getTile(x, y);
+      Vector2 screenPos = worldToScreen((float)x, (float)y);
 
-            // Позиция для DrawTextureEx — левый верхний угол тайла
-            Vector2 tileOrigin = { screenPos.x, screenPos.y };
+      // Position for drawing the tile texture
+      Vector2 tileOrigin = {screenPos.x, screenPos.y};
 
-            Texture2D* tex = nullptr;
-            if (tile.symbol == '#') tex = &tm.get("wall");
-            else if (tile.symbol == '%') {
-                // Кровь — просто красный прямоугольник поверх пола
-                DrawTexturePro(tm.get("floor"),
-                    {0, 0, 16, 16},
-                    {tileOrigin.x, tileOrigin.y, TILE_SIZE, TILE_SIZE},
-                    {0, 0}, 0.0f, WHITE);
-                DrawRectangle((int)tileOrigin.x, (int)tileOrigin.y,
-                              (int)TILE_SIZE, (int)TILE_SIZE,
-                              {150, 0, 0, 180});
-                continue;
-            }
-            else tex = &tm.get("floor");
+      Texture2D *tex = nullptr;
+      if (tile.symbol == '#')
+        tex = &tm.get("wall");
+      else if (tile.symbol == '%') {
+        // Blood tile - draw floor texture with red overlay
+        DrawTexturePro(tm.get("floor"), {0, 0, 16, 16},
+                       {tileOrigin.x, tileOrigin.y, TILE_SIZE, TILE_SIZE},
+                       {0, 0}, 0.0f, WHITE);
+        DrawRectangle((int)tileOrigin.x, (int)tileOrigin.y, (int)TILE_SIZE,
+                      (int)TILE_SIZE, {150, 0, 0, 180});
+        continue;
+      } else
+        tex = &tm.get("floor");
 
-            DrawTexturePro(*tex,
-                {0, 0, 16, 16},
-                {tileOrigin.x, tileOrigin.y, TILE_SIZE, TILE_SIZE},
-                {0, 0}, 0.0f, WHITE);
-        }
+      DrawTexturePro(*tex, {0, 0, 16, 16},
+                     {tileOrigin.x, tileOrigin.y, TILE_SIZE, TILE_SIZE}, {0, 0},
+                     0.0f, WHITE);
     }
+  }
 
-    for (auto* entity : entities) {
-        Vector2 pos = worldToScreen(entity->getX(), entity->getY());
-        Vector2 tileOrigin = { pos.x - TILE_SIZE / 2.0f, 
-                               pos.y - TILE_SIZE / 2.0f };
+  for (auto *entity : entities) {
+    Vector2 pos = worldToScreen(entity->getX(), entity->getY());
+    Vector2 tileOrigin = {pos.x - TILE_SIZE / 2.0f, pos.y - TILE_SIZE / 2.0f};
 
-        Texture2D* tex = nullptr;
-        int color = entity->getColor();
+    Texture2D *tex = nullptr;
+    int color = entity->getColor();
 
-        if (color == COLOR_PLAYER)  tex = &tm.get("player");
-        else if (color == 3)        tex = &tm.get("monster1");
-        else if (color == 4)        tex = &tm.get("monster2");
-        else if (color == 5)        tex = &tm.get("boss");
+    if (color == COLOR_PLAYER)
+      tex = &tm.get("player");
+    else if (color == 3)
+      tex = &tm.get("monster1");
+    else if (color == 4)
+      tex = &tm.get("monster2");
+    else if (color == 5)
+      tex = &tm.get("boss");
 
-        if (tex) {
-            DrawTexturePro(*tex,
-                {0, 0, 16, 16},
-                {tileOrigin.x, tileOrigin.y, TILE_SIZE, TILE_SIZE},
-                {0, 0}, 0.0f, WHITE);
-        }
+    if (tex) {
+      DrawTexturePro(*tex, {0, 0, 16, 16},
+                     {tileOrigin.x, tileOrigin.y, TILE_SIZE, TILE_SIZE}, {0, 0},
+                     0.0f, WHITE);
     }
-
+  }
 }
 
 void RaylibRenderer::setCameraTarget(float x, float y) {
-    camera.target = { x * TILE_SIZE + TILE_SIZE / 2.0f, 
-                      y * TILE_SIZE + TILE_SIZE / 2.0f };
+  camera.target = {x * TILE_SIZE + TILE_SIZE / 2.0f,
+                   y * TILE_SIZE + TILE_SIZE / 2.0f};
 }
 
 void RaylibRenderer::beginScene() { BeginMode2D(camera); }
