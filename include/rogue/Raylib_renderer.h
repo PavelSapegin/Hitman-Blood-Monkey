@@ -1,24 +1,37 @@
 #pragma once
-#include "Renderer.h"
+
+#include <vector>
+#include <string>
 #include <raylib.h>
+#include "Renderer.h"
 #include "world/Map.h"
+#include "entities/Entity.h"
+
 namespace rogue {
+
 class RaylibRenderer : public IRenderer {
 public:
-  void initialize() override;
-  void shutdown() override;
-  void clear() override;
-  void refresh() override;
-  void drawChar(float x, float y, char ch, int color) override;
-  void drawIsometricMap(const Map &map);
-  void updateCamera(float x, float y);
-  Camera2D &getCamera();
-  Vector2 worldToIsometric(float x, float y);
+    RaylibRenderer(int sw, int sh);
+    ~RaylibRenderer() override;
+
+    void initialize() override;
+    void shutdown() override;
+    void clear() override;
+    void refresh() override;
+    void drawChar(float x, float y, char ch, int color) override;
+
+    void renderMap(const Map &map, const std::vector<Entity*>& entities) override;
+
+    void setCameraTarget(float x, float y) override;
+    void beginScene() override;
+    void endScene() override;
 
 private:
-  Camera2D camera; // Camera object
-  const float TILE_SIZE = 20.0f;
-  const int screenWidth = 800;
-  const int screenHeight = 600;
+    Vector2 worldToScreen(float x, float y);
+    int screenWidth;
+    int screenHeight;
+    Camera2D camera;
+    static constexpr float TILE_SIZE = 40.0f;
 };
+
 } // namespace rogue

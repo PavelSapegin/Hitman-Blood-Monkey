@@ -9,6 +9,6 @@ public:
   void shutdown() override;
   void clear() override;
   void refresh() override;
-  void drawChar(int x, int y, char ch, int color) override;
+  void drawChar(float x, float y, char ch, int color) override;
 };
 } // namespace rogue

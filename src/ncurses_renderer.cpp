@@ -19,9 +19,9 @@ void NcursesRenderer::initialize() {
 void NcursesRenderer::clear() { ::clear(); }
 
 void NcursesRenderer::refresh() { ::refresh(); }
-void NcursesRenderer::drawChar(int x, int y, char ch, int color) {
+void NcursesRenderer::drawChar(float x, float y, char ch, int color) {
   attron(COLOR_PAIR(color));
-  mvaddch(y, x, ch);
+  mvaddch(static_cast<int>(y), static_cast<int>(x), ch);
   attroff(COLOR_PAIR(color));
 }
 void NcursesRenderer::shutdown() { endwin(); }

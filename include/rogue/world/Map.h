@@ -10,7 +10,6 @@ enum ColorPairs {
   COLOR_MONSTER = 3,
   COLOR_WALL = 4,
   COLOR_BLOOD = 5
-
 };
 
 struct Tile {
@@ -20,21 +19,21 @@ struct Tile {
 
 class Map {
 public:
-  Map(int width, int height);
-  ~Map() = default;
+    Map(int width, int height);
+    ~Map() = default;
 
-  int getWidth() const;
-  int getHeight() const;
+    bool isWalkable(float x, float y) const;
+    void spillBlood(float x, float y);
+    int getWidth() const;
+    int getHeight() const;
 
-  bool isWalkable(float x, float y) const;
-  void render(IRenderer &renderer) const;
-  void spillBlood(float x, float y);
+    const Tile& getTile(int x, int y) const;
+    void render(IRenderer &renderer) const;
 
 private:
-  int width;
-  int height;
-  std::vector<std::vector<Tile>> tiles; // Example tile representation
-  // Need to store actual tile size for coordinate conversions
-  float tileSize = 20.0f; // Each tile is 20x20 pixels
+    int width;
+    int height;
+    std::vector<std::vector<Tile>> tiles;
 };
+
 } // namespace rogue

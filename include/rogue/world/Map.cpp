@@ -1,5 +1,7 @@
 #include "Map.h"
 #include "../Renderer.h"
+#include <stdexcept>
+#include <cmath>
 
 namespace rogue {
 Map::Map(int width, int height) : width(width), height(height) {
@@ -19,9 +21,8 @@ Map::Map(int width, int height) : width(width), height(height) {
 
 bool Map::isWalkable(float x, float y) const {
   // Coordinates are in cell space (float for smooth movement)
-  int gridX = static_cast<int>(x);
-  int gridY = static_cast<int>(y);
-
+    int gridX = static_cast<int>(std::floor(x));
+    int gridY = static_cast<int>(std::floor(y));
   if (gridX < 0 || gridX >= width || gridY < 0 || gridY >= height) {
     return false; // Out of bounds
   }
@@ -40,6 +41,13 @@ void Map::spillBlood(float x, float y) {
 int Map::getHeight() const { return height; }
 
 int Map::getWidth() const { return width; }
+
+const Tile& Map::getTile(int x, int y) const {
+  if (x < 0 || x >= width || y < 0 || y >= height) {
+    throw std::out_of_range("Map::getTile coordinates out of range");
+  }
+  return tiles[y][x];
+}
 
 void Map::render(IRenderer &renderer) const {
   for (int y = 0; y < height; ++y) {

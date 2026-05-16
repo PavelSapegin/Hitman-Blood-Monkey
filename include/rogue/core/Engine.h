@@ -27,7 +27,6 @@ private:
   std::vector<std::unique_ptr<Monster>> monsters;
   float playerSpeed = 60.0f; // Units per second
   float deltaTime;
-  double lastFrameTime;
 };
 
 } // namespace rogue
