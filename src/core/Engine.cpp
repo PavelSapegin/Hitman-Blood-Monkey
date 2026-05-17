@@ -8,13 +8,14 @@
 #include "../include/rogue/entities/Player.h"
 #include <algorithm>
 #include <cmath>
+#include <random>
 #include <iostream>
 #include <raylib.h>
 
 namespace rogue {
 
 Engine::Engine(std::unique_ptr<IRenderer> r)
-    : isRunning(true), map(80, 25), player(10.0f, 5.0f, '@', 2, 100),
+    : isRunning(true), map(120, 80), player(0.0f, 0.0f, '@', COLOR_PLAYER, 100),
       deltaTime(0.0f) {
 
   if (!r) {
@@ -29,13 +30,24 @@ Engine::Engine(std::unique_ptr<IRenderer> r)
   tm.loadTexture("monster1", "../assets/tile_0109.png");
   tm.loadTexture("monster2", "../assets/tile_0111.png");
   tm.loadTexture("boss", "../assets/tile_0108.png");
+const auto& rooms = map.getRooms();
+  if (!rooms.empty()) {
+      // Игрок спавнится в первой комнате
+      player.setPosition(rooms[0].centerX(), rooms[0].centerY());
 
-  monsters.push_back(
-      MonsterFactory::createMonster(MonsterType::SceletonMonkey, 5.0f, 5.0f));
-  monsters.push_back(
-      MonsterFactory::createMonster(MonsterType::GoblinMonkey, 10.0f, 10.0f));
-  monsters.push_back(
-      MonsterFactory::createMonster(MonsterType::MonkeyBoss, 15.0f, 15.0f));
+      // Монстры спавнятся в остальных комнатах — по несколько в каждой
+      std::mt19937 rng(std::random_device{}());
+      for (int i = 1; i < (int)rooms.size(); ++i) {
+          const auto& room = rooms[i];
+          int count = 3 + rng() % 5; // 3-7 монстров в комнате
+          for (int j = 0; j < count; ++j) {
+              float mx = room.x + 1 + rng() % (room.w - 2);
+              float my = room.y + 1 + rng() % (room.h - 2);
+              MonsterType type = static_cast<MonsterType>(rng() % 3);
+              monsters.push_back(MonsterFactory::createMonster(type, mx, my));
+          }
+      }
+    }
 }
 
 Engine::~Engine() {

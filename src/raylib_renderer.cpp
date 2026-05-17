@@ -53,8 +53,8 @@ void RaylibRenderer::renderMap(const Map &map,
         DrawRectangle((int)tileOrigin.x, (int)tileOrigin.y, (int)TILE_SIZE,
                       (int)TILE_SIZE, {150, 0, 0, 180});
         continue;
-      } else
-        tex = &tm.get("floor");
+      } else if (tile.symbol == '.' || tile.symbol == ' ')
+          tex = &tm.get("floor");
 
       DrawTexturePro(*tex, {0, 0, 16, 16},
                      {tileOrigin.x, tileOrigin.y, TILE_SIZE, TILE_SIZE}, {0, 0},
