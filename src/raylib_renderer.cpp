@@ -54,7 +54,7 @@ void RaylibRenderer::renderMap(const Map &map,
                       (int)TILE_SIZE, {150, 0, 0, 180});
         continue;
       } else if (tile.symbol == '.' || tile.symbol == ' ')
-          tex = &tm.get("floor");
+        tex = &tm.get("floor");
 
       DrawTexturePro(*tex, {0, 0, 16, 16},
                      {tileOrigin.x, tileOrigin.y, TILE_SIZE, TILE_SIZE}, {0, 0},
@@ -87,14 +87,14 @@ void RaylibRenderer::renderMap(const Map &map,
 }
 
 void RaylibRenderer::setCameraTarget(float x, float y) {
-    float targetX = x * TILE_SIZE;
-    float targetY = y * TILE_SIZE;
-    
-    float speed = 5.0f; // чем меньше — тем плавнее
-    float dt = GetFrameTime();
-    
-    camera.target.x += (targetX - camera.target.x) * speed * dt;
-    camera.target.y += (targetY - camera.target.y) * speed * dt;
+  float targetX = x * TILE_SIZE;
+  float targetY = y * TILE_SIZE;
+
+  float speed = 5.0f; // чем меньше — тем плавнее
+  float dt = GetFrameTime();
+
+  camera.target.x += (targetX - camera.target.x) * speed * dt;
+  camera.target.y += (targetY - camera.target.y) * speed * dt;
 }
 
 void RaylibRenderer::beginScene() { BeginMode2D(camera); }

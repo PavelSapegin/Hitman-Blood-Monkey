@@ -7,21 +7,17 @@ using namespace rogue;
 
 class CommandTest : public ::testing::Test {
 protected:
-    Map map{40, 40, 42};
-    Monster monster{
-        (float)map.getRooms()[0].centerX(),
-        (float)map.getRooms()[0].centerY(),
-        's', 3, 30
-    };
+  Map map{40, 40, 42};
+  Monster monster{(float)map.getRooms()[0].centerX(),
+                  (float)map.getRooms()[0].centerY(), 's', 3, 30};
 };
 
 TEST_F(CommandTest, MoveCommandMovesEntity) {
-    float startX = monster.getX();
-    MoveCommand cmd(1, 0);
-    cmd.execute(monster, map);
-    EXPECT_FLOAT_EQ(monster.getX(), startX + 1.0f);
+  float startX = monster.getX();
+  MoveCommand cmd(1, 0);
+  cmd.execute(monster, map);
+  EXPECT_FLOAT_EQ(monster.getX(), startX + 1.0f);
 }
-
 
 TEST_F(CommandTest, MoveCommandBlockedByWall) {
   // Place a wall to the left of the monster

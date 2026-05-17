@@ -7,25 +7,22 @@ using namespace rogue;
 
 class PlayerTest : public ::testing::Test {
 protected:
-    Map map{40, 40, 42};  // фиксированный seed
-    Player player{
-        (float)map.getRooms()[0].centerX(),
-        (float)map.getRooms()[0].centerY(),
-        '@', 2, 100
-    };
+  Map map{40, 40, 42}; // фиксированный seed
+  Player player{(float)map.getRooms()[0].centerX(),
+                (float)map.getRooms()[0].centerY(), '@', 2, 100};
 };
 
 TEST_F(PlayerTest, MovesOnOpenFloor) {
-    std::vector<Entity*> entities;
-    float startX = player.getX();
-    player.setContext(map, entities, 1.0f);
-    player.processInput(1.0f, 0.0f, 0.016f);
-    player.update();
-    EXPECT_GT(player.getX(), startX);
+  std::vector<Entity *> entities;
+  float startX = player.getX();
+  player.setContext(map, entities, 1.0f);
+  player.processInput(1.0f, 0.0f, 0.016f);
+  player.update();
+  EXPECT_GT(player.getX(), startX);
 }
 
 TEST_F(PlayerTest, InitialPosition) {
-  EXPECT_FLOAT_EQ(player.getX(),(float)map.getRooms()[0].centerX());
+  EXPECT_FLOAT_EQ(player.getX(), (float)map.getRooms()[0].centerX());
   EXPECT_FLOAT_EQ(player.getY(), (float)map.getRooms()[0].centerY());
 }
 
@@ -44,7 +41,6 @@ TEST_F(PlayerTest, TakeDamageDoesNotGoBelowZero) {
   EXPECT_EQ(player.getHp(), 0);
   EXPECT_TRUE(player.isDead());
 }
-
 
 TEST_F(PlayerTest, BlockedByWall) {
   // Place player near the top wall
