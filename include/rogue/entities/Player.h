@@ -21,7 +21,7 @@ private:
   const std::vector<Entity *> *entitiesPtr = nullptr;
   float m_deltaTime = 0;
 
-  float playerSpeed = 100.0f;
+  float playerSpeed = 15.0f;
   float maxStep = 0.5f;
 };
 
