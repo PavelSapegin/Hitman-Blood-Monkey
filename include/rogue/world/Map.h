@@ -33,6 +33,7 @@ struct Room
 class Map {
 public:
   Map(int width, int height);
+  Map(int width, int height, int seed); // generation for test
   ~Map() = default;
 
   bool isWalkable(float x, float y) const;
@@ -49,7 +50,7 @@ private:
   int height;
   std::vector<std::vector<Tile>> tiles;
   std::vector<Room> rooms;
-  void generate();
+  void generate(unsigned int seed);
   void fillWithWalls();
   void carveRoom(const Room& room);
   void carveHCorridor(int x1, int x2, int y);

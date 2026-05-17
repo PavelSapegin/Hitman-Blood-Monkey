@@ -16,8 +16,15 @@ static constexpr int MAX_ROOM_H   = 14;
 Map::Map(int width, int height) : width(width), height(height) {
   // Initialize the map with default tiles
   tiles.resize(height, std::vector<Tile>(width, {'#', COLOR_WALL}));
-  generate();
+  std::random_device rd;
+  generate(rd());
 }
+Map::Map(int width, int height, int seed)
+    : width(width), height(height) {
+    tiles.resize(height, std::vector<Tile>(width, {'#', COLOR_WALL}));
+    generate(seed);
+}
+
 void Map::fillWithWalls() {
     for (auto& row : tiles)
         for (auto& tile : row)
@@ -48,10 +55,10 @@ void Map::carveVCorridor(int y1, int y2, int x) {
     for (int y = std::min(y1, y2); y <= std::max(y1, y2); ++y)
         setFloor(x + 1, y);
 }
-void Map::generate() {
+void Map::generate(unsigned int seed) {
     fillWithWalls();
 
-    std::mt19937 rng(std::random_device{}());
+    std::mt19937 rng(seed);
     auto randInt = [&](int lo, int hi) {
         return std::uniform_int_distribution<int>(lo, hi)(rng);
     };

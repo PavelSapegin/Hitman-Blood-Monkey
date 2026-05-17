@@ -12,10 +12,10 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
-
 enable_testing()
 find_package(raylib REQUIRED)
 include_directories(include)
+
 
 set(GAME_SOURCES
     src/core/Engine.cpp

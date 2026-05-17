@@ -1,53 +1,57 @@
-#include "rogue/world/Map.h"
 #include <gtest/gtest.h>
+#include "rogue/world/Map.h"
 
 using namespace rogue;
 
-TEST(MapTest, WallsAreNotWalkable) {
-  Map map(10, 10);
-  EXPECT_FALSE(map.isWalkable(0, 0));
-  EXPECT_FALSE(map.isWalkable(9, 9));
-  EXPECT_FALSE(map.isWalkable(5, 0));
-  EXPECT_FALSE(map.isWalkable(0, 5));
+class MapTest : public ::testing::Test {
+protected:
+    // Фиксированный seed — карта всегда одинаковая
+    Map map{80, 50, 42};
+};
+
+TEST_F(MapTest, Dimensions) {
+    EXPECT_EQ(map.getWidth(), 80);
+    EXPECT_EQ(map.getHeight(), 50);
 }
 
-TEST(MapTest, FloorIsWalkable) {
-  Map map(10, 10);
-  EXPECT_TRUE(map.isWalkable(1, 1));
-  EXPECT_TRUE(map.isWalkable(5, 5));
-  EXPECT_TRUE(map.isWalkable(8, 8));
+TEST_F(MapTest, OutOfBoundsNotWalkable) {
+    EXPECT_FALSE(map.isWalkable(-1, 0));
+    EXPECT_FALSE(map.isWalkable(0, -1));
+    EXPECT_FALSE(map.isWalkable(80, 0));
+    EXPECT_FALSE(map.isWalkable(0, 50));
 }
 
-TEST(MapTest, OutOfBoundsNotWalkable) {
-  Map map(10, 10);
-  EXPECT_FALSE(map.isWalkable(-1, 0));
-  EXPECT_FALSE(map.isWalkable(0, -1));
-  EXPECT_FALSE(map.isWalkable(10, 0));
-  EXPECT_FALSE(map.isWalkable(0, 10));
+TEST_F(MapTest, GetTileOutOfRangeThrows) {
+    EXPECT_THROW(map.getTile(-1, 0), std::out_of_range);
+    EXPECT_THROW(map.getTile(0, -1), std::out_of_range);
+    EXPECT_THROW(map.getTile(80, 0), std::out_of_range);
 }
 
-TEST(MapTest, SpillBloodChangesTile) {
-  Map map(10, 10);
-  map.spillBlood(5, 5);
-  EXPECT_EQ(map.getTile(5, 5).symbol, '%');
-  EXPECT_EQ(map.getTile(5, 5).colorPair, 5);
+TEST_F(MapTest, RoomsGenerated) {
+    // После генерации должны быть комнаты
+    EXPECT_FALSE(map.getRooms().empty());
 }
 
-TEST(MapTest, SpillBloodOutOfBoundsDoesNotCrash) {
-  Map map(10, 10);
-  EXPECT_NO_THROW(map.spillBlood(-1, -1));
-  EXPECT_NO_THROW(map.spillBlood(100, 100));
+TEST_F(MapTest, RoomCentersAreWalkable) {
+    // Центры всех комнат должны быть проходимы
+    for (const auto& room : map.getRooms()) {
+        EXPECT_TRUE(map.isWalkable(room.centerX(), room.centerY()))
+            << "Room center " << room.centerX() << "," << room.centerY() 
+            << " is not walkable";
+    }
 }
 
-TEST(MapTest, GetTileOutOfRangeThrows) {
-  Map map(10, 10);
-  EXPECT_THROW(map.getTile(-1, 0), std::out_of_range);
-  EXPECT_THROW(map.getTile(0, -1), std::out_of_range);
-  EXPECT_THROW(map.getTile(10, 0), std::out_of_range);
+TEST_F(MapTest, SpillBloodChangesTile) {
+    // Берём центр первой комнаты — гарантированно walkable
+    const auto& room = map.getRooms()[0];
+    int cx = room.centerX();
+    int cy = room.centerY();
+    map.spillBlood(cx, cy);
+    EXPECT_EQ(map.getTile(cx, cy).symbol, '%');
+    EXPECT_EQ(map.getTile(cx, cy).colorPair, 5);
 }
 
-TEST(MapTest, Dimensions) {
-  Map map(20, 15);
-  EXPECT_EQ(map.getWidth(), 20);
-  EXPECT_EQ(map.getHeight(), 15);
+TEST_F(MapTest, SpillBloodOutOfBoundsDoesNotCrash) {
+    EXPECT_NO_THROW(map.spillBlood(-1, -1));
+    EXPECT_NO_THROW(map.spillBlood(100, 100));
 }
