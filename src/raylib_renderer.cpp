@@ -1,82 +1,110 @@
 #include "rogue/Raylib_renderer.h"
+#include "rogue/TextureManager.h"
 #include <raylib.h>
-#include <string>
 
 namespace rogue {
 
-void RaylibRenderer::initialize() {
-  InitWindow(screenWidth, screenHeight, "Hitman Blood Monkey");
-  SetTargetFPS(60);
-
-  // Initialize camera
+RaylibRenderer::RaylibRenderer(int sw, int sh)
+    : screenWidth(sw), screenHeight(sh) {
   camera.target = {0.0f, 0.0f};
   camera.offset = {screenWidth / 2.0f, screenHeight / 2.0f};
   camera.rotation = 0.0f;
   camera.zoom = 1.0f;
 }
 
-void RaylibRenderer::shutdown() { CloseWindow(); }
+RaylibRenderer::~RaylibRenderer() {}
 
+void RaylibRenderer::initialize() {
+  InitWindow(screenWidth, screenHeight, "Hitman Blood Monkey - Top-Down");
+  SetTargetFPS(60);
+}
+
+void RaylibRenderer::shutdown() { CloseWindow(); }
 void RaylibRenderer::clear() {
   BeginDrawing();
   ClearBackground(BLACK);
 }
-
 void RaylibRenderer::refresh() { EndDrawing(); }
 
-// Accessor for the camera
-Camera2D &RaylibRenderer::getCamera() { return camera; }
-
-// Update camera target to follow the player
-void RaylibRenderer::updateCamera(float x, float y) {
-  Vector2 isoPos = worldToIsometric(x, y);
-  camera.target = isoPos;
+Vector2 RaylibRenderer::worldToScreen(float x, float y) {
+  return {x * TILE_SIZE, y * TILE_SIZE};
 }
+
+void RaylibRenderer::renderMap(const Map &map,
+                               const std::vector<Entity *> &entities) {
+  auto &tm = TextureManager::getInstance();
+
+  for (int y = 0; y < map.getHeight(); ++y) {
+    for (int x = 0; x < map.getWidth(); ++x) {
+      const Tile &tile = map.getTile(x, y);
+      Vector2 screenPos = worldToScreen((float)x, (float)y);
+
+      // Position for drawing the tile texture
+      Vector2 tileOrigin = {screenPos.x, screenPos.y};
+
+      Texture2D *tex = nullptr;
+      if (tile.symbol == '#')
+        tex = &tm.get("wall");
+      else if (tile.symbol == '%') {
+        // Blood tile - draw floor texture with red overlay
+        DrawTexturePro(tm.get("floor"), {0, 0, 16, 16},
+                       {tileOrigin.x, tileOrigin.y, TILE_SIZE, TILE_SIZE},
+                       {0, 0}, 0.0f, WHITE);
+        DrawRectangle((int)tileOrigin.x, (int)tileOrigin.y, (int)TILE_SIZE,
+                      (int)TILE_SIZE, {150, 0, 0, 180});
+        continue;
+      } else if (tile.symbol == '.' || tile.symbol == ' ')
+        tex = &tm.get("floor");
+
+      DrawTexturePro(*tex, {0, 0, 16, 16},
+                     {tileOrigin.x, tileOrigin.y, TILE_SIZE, TILE_SIZE}, {0, 0},
+                     0.0f, WHITE);
+    }
+  }
+
+  for (auto *entity : entities) {
+    Vector2 pos = worldToScreen(entity->getX(), entity->getY());
+    Vector2 tileOrigin = {pos.x - TILE_SIZE / 2.0f, pos.y - TILE_SIZE / 2.0f};
+
+    Texture2D *tex = nullptr;
+    int color = entity->getColor();
+
+    if (color == COLOR_PLAYER)
+      tex = &tm.get("player");
+    else if (color == 3)
+      tex = &tm.get("monster1");
+    else if (color == 4)
+      tex = &tm.get("monster2");
+    else if (color == 5)
+      tex = &tm.get("boss");
+
+    if (tex) {
+      DrawTexturePro(*tex, {0, 0, 16, 16},
+                     {tileOrigin.x, tileOrigin.y, TILE_SIZE, TILE_SIZE}, {0, 0},
+                     0.0f, WHITE);
+    }
+  }
+}
+
+void RaylibRenderer::setCameraTarget(float x, float y) {
+  float targetX = x * TILE_SIZE;
+  float targetY = y * TILE_SIZE;
+
+  float speed = 5.0f; // чем меньше — тем плавнее
+  float dt = GetFrameTime();
+
+  camera.target.x += (targetX - camera.target.x) * speed * dt;
+  camera.target.y += (targetY - camera.target.y) * speed * dt;
+}
+
+void RaylibRenderer::beginScene() { BeginMode2D(camera); }
+
+void RaylibRenderer::endScene() { EndMode2D(); }
 
 void RaylibRenderer::drawChar(float x, float y, char ch, int color) {
-  Vector2 isoPos = worldToIsometric(x, y);
-
-  // Map color index to Raylib Colors
-  Color tileColor = LIGHTGRAY; // Floor/Default
-  if (color == 4)
-    tileColor = GRAY; // Walls
-  else if (color == 2)
-    tileColor = BLUE; // Player
-  else if (color == 3)
-    tileColor = RED; // Monsters
-  else if (color == 5)
-    tileColor = MAROON; // Blood
-
-  // Draw isometric tile (diamond shape)
-  if (color == 4) { // Walls
-    // Draw base tile
-    DrawPoly(isoPos, 4, 25.0f, 45.0f, DARKGRAY);
-    // Draw the wall volume by shifting upward
-    Vector2 topPos = {isoPos.x, isoPos.y - 40.0f};
-    DrawRectangle(static_cast<int>(topPos.x - 15),
-                  static_cast<int>(topPos.y - 30), 30, 40, tileColor);
-    DrawPolyLines(isoPos, 4, 25.0f, 45.0f, DARKGRAY);
-  } else { // Floor
-    DrawPoly(isoPos, 4, 25.0f, 45.0f, tileColor);
-  }
-
-  // Draw symbol on top
-  if (ch != ' ') {
-    std::string s(1, ch);
-    DrawText(s.c_str(), static_cast<int>(isoPos.x - 5),
-             static_cast<int>(isoPos.y - 5), 20, BLACK);
-  }
-}
-
-Vector2 RaylibRenderer::worldToIsometric(float x, float y) {
-  float tileWidth = 40.0f;
-  float tileHeight = 20.0f;
-
-  // Calculate isometric coordinates without screen offset
-  float isoX = (x - y) * (tileWidth / 2.0f);
-  float isoY = (x + y) * (tileHeight / 2.0f);
-
-  return {isoX, isoY + 100.0f};
+  Vector2 screenPos = worldToScreen(x, y);
+  DrawText(TextFormat("%c", ch), (int)screenPos.x, (int)screenPos.y, 20,
+           (color == COLOR_PLAYER) ? BLUE : WHITE);
 }
 
 } // namespace rogue
