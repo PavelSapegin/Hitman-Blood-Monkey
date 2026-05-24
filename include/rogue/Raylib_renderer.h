@@ -25,6 +25,7 @@ public:
   void setCameraTarget(float x, float y) override;
   void beginScene() override;
   void endScene() override;
+  Camera2D getCamera() const {return camera;}
 
 private:
   Vector2 worldToScreen(float x, float y);

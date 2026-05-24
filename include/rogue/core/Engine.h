@@ -4,6 +4,8 @@
 #include "../entities/Monster.h"
 #include "../entities/Player.h"
 #include "../world/Map.h"
+#include "../Weapon.h"
+#include "../BulletSystem.h"
 #include <memory>
 #include <vector>
 
@@ -21,6 +23,10 @@ private:
   void handleInput();
   void render();
   void renderDebugInfo();
+  void reset();
+  BulletSystem bulletSystem;
+  Weapon currentWeapon = Weapon::makeFists();
+  float weaponCooldownTimer = 0.0f;
 
   bool isRunning;
   Map map;

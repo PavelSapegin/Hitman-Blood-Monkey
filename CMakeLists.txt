@@ -26,6 +26,7 @@ set(GAME_SOURCES
     include/rogue/world/Map.cpp
     include/rogue/core/Command.cpp
     src/ParticleSystem.cpp
+    src/BulletSystem.cpp
 )
 
 
