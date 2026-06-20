@@ -26,4 +26,4 @@ public:
   AttackCommand(Monster *target, int damage = 10) : target(target), damage(damage) {}
   void execute(Entity &entity, Map &map) override;
 };
-} // namespace rogue
+}  // namespace rogue

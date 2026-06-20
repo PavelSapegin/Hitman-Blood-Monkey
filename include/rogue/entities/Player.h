@@ -1,7 +1,8 @@
 #pragma once
+#include <vector>
+
 #include "../world/Map.h"
 #include "Entity.h"
-#include <vector>
 
 namespace rogue {
 
@@ -12,8 +13,9 @@ public:
   void update() override;
   void processInput(float dx, float dy, float deltaTime);
   void setInput(float dx, float dy);
-  void setContext(Map &map, const std::vector<Entity *> &entities,
-                  float deltaTime);
+  void setContext(Map &map, const std::vector<Entity *> &entities, float deltaTime);
+
+  bool ignoreWalls = false;
 
 private:
   float inputDx = 0, inputDy = 0;
@@ -25,4 +27,4 @@ private:
   float maxStep = 0.5f;
 };
 
-} // namespace rogue
+}  // namespace rogue

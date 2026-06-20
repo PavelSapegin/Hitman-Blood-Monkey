@@ -9,7 +9,7 @@ void MoveCommand::execute(Entity &entity, Map &map) {
   }
 }
 
-void AttackCommand::execute(Entity &entity, Map &map) {
+void AttackCommand::execute(Entity & /*entity*/, Map &map) {
   if (!target)
     return;
 
@@ -18,4 +18,4 @@ void AttackCommand::execute(Entity &entity, Map &map) {
     map.spillBlood(target->getX(), target->getY());
   }
 }
-} // namespace rogue
+}  // namespace rogue

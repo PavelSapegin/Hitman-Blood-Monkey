@@ -1,6 +1,8 @@
 #pragma once
-#include "../Renderer.h"
+#include <string>
 #include <vector>
+
+#include "../Renderer.h"
 
 namespace rogue {
 
@@ -17,20 +19,32 @@ struct Tile {
   int colorPair;
 };
 
+struct Prefab {
+  int w, h;
+  std::vector<char> tiles;
+
+  Prefab(int w, int h, std::vector<char> tiles) : w(w), h(h), tiles(std::move(tiles)) {}
+
+  char tile(int x, int y) const { return tiles[y * w + x]; }
+};
+
 struct Room {
   int x, y, w, h;
-  int centerX() const { return x + w / 2; }
-  int centerY() const { return y + h / 2; }
+  int spawnX, spawnY;
+
+  int centerX() const { return spawnX; }
+  int centerY() const { return spawnY; }
+
   bool intersects(const Room &other) const {
-    return x <= other.x + other.w + 1 && x + w + 1 >= other.x &&
-           y <= other.y + other.h + 1 && y + h + 1 >= other.y;
+    return x <= other.x + other.w + 1 && x + w + 1 >= other.x && y <= other.y + other.h + 1 &&
+           y + h + 1 >= other.y;
   }
 };
 
 class Map {
 public:
   Map(int width, int height);
-  Map(int width, int height, int seed); // generation for test
+  Map(int width, int height, int seed);
   ~Map() = default;
 
   bool isWalkable(float x, float y) const;
@@ -43,6 +57,7 @@ public:
   void render(IRenderer &renderer) const;
 
   const std::vector<Room> &getRooms() const { return rooms; }
+  void setFloor(int x, int y);
 
 private:
   int width;
@@ -51,10 +66,10 @@ private:
   std::vector<Room> rooms;
   void generate(unsigned int seed);
   void fillWithWalls();
-  void carveRoom(const Room &room);
+  void carveRoom(const Room &room, const Prefab &prefab);
+  void findSpawnPoint(Room &room);
   void carveHCorridor(int x1, int x2, int y);
   void carveVCorridor(int y1, int y2, int x);
-  void setFloor(int x, int y);
 };
 
-} // namespace rogue
+}  // namespace rogue

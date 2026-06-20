@@ -27,12 +27,16 @@ set(GAME_SOURCES
     src/world/Map.cpp
     src/ParticleSystem.cpp
     src/BulletSystem.cpp
+    src/AudioSystem.cpp
+    src/ArtifactSystem.cpp
+    src/EventSystem.cpp
+    src/MetaProgression.cpp
 )
 
 
 add_executable(testgame src/main.cpp ${GAME_SOURCES})
 target_link_libraries(testgame raylib)
-
+target_compile_options(testgame PRIVATE -Wall -Wextra)
 add_executable(game_tests
     tests/test_map.cpp
     tests/test_player.cpp

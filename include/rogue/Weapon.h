@@ -2,7 +2,7 @@
 
 namespace rogue {
 
-enum class WeaponType { Fists, Minigun };
+enum class WeaponType { Fists, Minigun, Shotgun, RocketLauncher };
 
 struct Weapon {
   WeaponType type;
@@ -35,6 +35,26 @@ struct Weapon {
     w.currentFireRate = 0.5f;
     return w;
   }
+
+  static Weapon makeShotgun() {
+    Weapon w;
+    w.type = WeaponType::Shotgun;
+    w.damage = 25.0f;
+    w.range = 8.0f;
+    w.cooldown = 0.8f;
+    w.currentFireRate = 0.8f;
+    return w;
+  }
+
+  static Weapon makeRocketLauncher() {
+    Weapon w;
+    w.type = WeaponType::RocketLauncher;
+    w.damage = 80.0f;
+    w.range = 20.0f;
+    w.cooldown = 1.5f;
+    w.currentFireRate = 1.5f;
+    return w;
+  }
 };
 
-} // namespace rogue
+}  // namespace rogue

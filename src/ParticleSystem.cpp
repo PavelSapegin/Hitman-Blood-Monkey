@@ -1,8 +1,10 @@
-#include "rogue/Constants.h"
 #include "rogue/ParticleSystem.h"
+
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
+
+#include "rogue/Constants.h"
 
 namespace rogue {
 
@@ -27,8 +29,10 @@ void ParticleSystem::spawnBlood(float x, float y, int count) {
     p.type = ParticleType::Blood;
 
     static const Color bloodColors[] = {
-        RED,         MAROON,   Color{(unsigned char)180, (unsigned char)0, (unsigned char)0, (unsigned char)255},
-        Color{(unsigned char)200, (unsigned char)50, (unsigned char)50, (unsigned char)255}, Color{(unsigned char)120, (unsigned char)0, (unsigned char)0, (unsigned char)255}};
+      RED, MAROON,
+      Color{(unsigned char)180, (unsigned char)0, (unsigned char)0, (unsigned char)255},
+      Color{(unsigned char)200, (unsigned char)50, (unsigned char)50, (unsigned char)255},
+      Color{(unsigned char)120, (unsigned char)0, (unsigned char)0, (unsigned char)255}};
     p.color = bloodColors[rand() % 5];
 
     particles.push_back(p);
@@ -51,7 +55,8 @@ void ParticleSystem::spawnExplosion(float x, float y, int count) {
       p.type = ParticleType::ExplosionDebris;
       p.lifetime = randF(0.5f, 1.5f);
       p.size = randF(2.0f, 4.0f);
-      p.color = Color{(unsigned char)(80 + rand() % 40), (unsigned char)(30 + rand() % 20), (unsigned char)10, (unsigned char)255};
+      p.color = Color{(unsigned char)(80 + rand() % 40), (unsigned char)(30 + rand() % 20),
+                      (unsigned char)10, (unsigned char)255};
     } else if (t < 0.7f) {
       p.type = ParticleType::Fire;
       p.lifetime = randF(0.3f, 0.8f);
@@ -62,8 +67,8 @@ void ParticleSystem::spawnExplosion(float x, float y, int count) {
       p.lifetime = randF(2.0f, 4.0f);
       p.size = randF(3.0f, 6.0f);
       p.maxSize = p.size + randF(5.0f, 12.0f);
-      p.color = Color{(unsigned char)(100 + rand() % 60), (unsigned char)(100 + rand() % 60), (unsigned char)(100 + rand() % 60),
-                      (unsigned char)100};
+      p.color = Color{(unsigned char)(100 + rand() % 60), (unsigned char)(100 + rand() % 60),
+                      (unsigned char)(100 + rand() % 60), (unsigned char)100};
     }
 
     p.maxLifetime = p.lifetime;
@@ -132,32 +137,31 @@ void ParticleSystem::update(float deltaTime) {
     p.lifetime -= deltaTime;
 
     switch (p.type) {
-    case ParticleType::Blood:
-      p.vy += 0.5f * deltaTime;
-      p.vx *= 0.94f;
-      break;
-    case ParticleType::Fire:
-      p.vy -= 0.8f * deltaTime;
-      p.vx *= 0.95f;
-      break;
-    case ParticleType::Smoke:
-      p.vy -= 0.2f * deltaTime;
-      p.vx *= 0.98f;
-      p.size += 2.0f * deltaTime;
-      if (p.size > p.maxSize)
-        p.size = p.maxSize;
-      break;
-    case ParticleType::ExplosionDebris:
-      p.vy += 3.0f * deltaTime;
-      p.vx *= 0.88f;
-      break;
+      case ParticleType::Blood:
+        p.vy += 0.5f * deltaTime;
+        p.vx *= 0.94f;
+        break;
+      case ParticleType::Fire:
+        p.vy -= 0.8f * deltaTime;
+        p.vx *= 0.95f;
+        break;
+      case ParticleType::Smoke:
+        p.vy -= 0.2f * deltaTime;
+        p.vx *= 0.98f;
+        p.size += 2.0f * deltaTime;
+        if (p.size > p.maxSize)
+          p.size = p.maxSize;
+        break;
+      case ParticleType::ExplosionDebris:
+        p.vy += 3.0f * deltaTime;
+        p.vx *= 0.88f;
+        break;
     }
   }
 
-  particles.erase(
-      std::remove_if(particles.begin(), particles.end(),
-                     [](const Particle &p) { return p.lifetime <= 0; }),
-      particles.end());
+  particles.erase(std::remove_if(particles.begin(), particles.end(),
+                                 [](const Particle &p) { return p.lifetime <= 0; }),
+                  particles.end());
 }
 
 void ParticleSystem::render() const {
@@ -170,23 +174,23 @@ void ParticleSystem::render() const {
     float screenY = p.y * TILE_SIZE;
 
     switch (p.type) {
-    case ParticleType::Blood:
-      DrawCircle((int)screenX, (int)screenY, p.size * alpha, c);
-      break;
-    case ParticleType::Fire: {
-      float flicker = 0.7f + 0.3f * std::sin(p.lifetime * 30.0f);
-      DrawCircle((int)screenX, (int)screenY, p.size * flicker, c);
-      break;
-    }
-    case ParticleType::Smoke:
-      c.a = static_cast<unsigned char>((1.0f - (1.0f - alpha) * (1.0f - alpha)) * c.a);
-      DrawCircle((int)screenX, (int)screenY, p.size, c);
-      break;
-    case ParticleType::ExplosionDebris:
-      DrawCircle((int)screenX, (int)screenY, p.size * (0.5f + 0.5f * alpha), c);
-      break;
+      case ParticleType::Blood:
+        DrawCircle((int)screenX, (int)screenY, p.size * alpha, c);
+        break;
+      case ParticleType::Fire: {
+        float flicker = 0.7f + 0.3f * std::sin(p.lifetime * 30.0f);
+        DrawCircle((int)screenX, (int)screenY, p.size * flicker, c);
+        break;
+      }
+      case ParticleType::Smoke:
+        c.a = static_cast<unsigned char>((1.0f - (1.0f - alpha) * (1.0f - alpha)) * c.a);
+        DrawCircle((int)screenX, (int)screenY, p.size, c);
+        break;
+      case ParticleType::ExplosionDebris:
+        DrawCircle((int)screenX, (int)screenY, p.size * (0.5f + 0.5f * alpha), c);
+        break;
     }
   }
 }
 
-} // namespace rogue
+}  // namespace rogue

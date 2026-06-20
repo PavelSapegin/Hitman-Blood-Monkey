@@ -1,6 +1,7 @@
 #pragma once
-#include "Renderer.h"
 #include <ncurses.h>
+
+#include "Renderer.h"
 
 namespace rogue {
 class NcursesRenderer : public IRenderer {
@@ -11,4 +12,4 @@ public:
   void refresh() override;
   void drawChar(float x, float y, char ch, int color) override;
 };
-} // namespace rogue
+}  // namespace rogue

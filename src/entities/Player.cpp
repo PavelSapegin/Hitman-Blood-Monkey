@@ -1,11 +1,12 @@
 #include "rogue/entities/Player.h"
+
 #include <algorithm>
 #include <cmath>
 
 namespace rogue {
 
 Player::Player(float x, float y, char symbol, int color, int health)
-    : Entity(x, y, symbol, color, health) {}
+  : Entity(x, y, symbol, color, health) {}
 
 void Player::processInput(float dx, float dy, float dt) {
   inputDx = dx;
@@ -18,8 +19,7 @@ void Player::setInput(float dx, float dy) {
   inputDy = dy;
 }
 
-void Player::setContext(Map &map, const std::vector<Entity *> &entities,
-                        float dt) {
+void Player::setContext(Map &map, const std::vector<Entity *> &entities, float dt) {
   mapPtr = &map;
   entitiesPtr = &entities;
   m_deltaTime = dt;
@@ -52,14 +52,15 @@ void Player::update() {
 
   constexpr float collisionRadius = 0.35f;
   auto canMoveTo = [&](float testX, float testY) {
+    if (ignoreWalls)
+      return true;
     return mapPtr->isWalkable(testX + collisionRadius, testY) &&
            mapPtr->isWalkable(testX - collisionRadius, testY) &&
            mapPtr->isWalkable(testX, testY + collisionRadius) &&
            mapPtr->isWalkable(testX, testY - collisionRadius);
   };
 
-  int steps = std::max(1, static_cast<int>(std::ceil(
-                              std::max(std::abs(dx), std::abs(dy)) / 0.1f)));
+  int steps = std::max(1, static_cast<int>(std::ceil(std::max(std::abs(dx), std::abs(dy)) / 0.1f)));
   float stepX = dx / steps;
   float stepY = dy / steps;
 
@@ -86,4 +87,4 @@ void Player::update() {
   }
 }
 
-} // namespace rogue
+}  // namespace rogue

@@ -1,4 +1,5 @@
 #include "rogue/entities/Monster.h"
+
 #include <algorithm>
 #include <cmath>
 #include <queue>
@@ -7,7 +8,7 @@
 namespace rogue {
 
 Monster::Monster(float x, float y, char symbol, int color, int maxHp)
-    : Entity(x, y, symbol, color, maxHp) {}
+  : Entity(x, y, symbol, color, maxHp) {}
 
 void Monster::update() {}
 
@@ -15,9 +16,8 @@ static float heuristic(int x1, int y1, int x2, int y2) {
   return std::abs(x1 - x2) + std::abs(y1 - y2);
 }
 
-std::vector<std::pair<int, int>> Monster::findPath(const Map &map, int startX,
-                                                   int startY, int goalX,
-                                                   int goalY) {
+std::vector<std::pair<int, int>> Monster::findPath(const Map &map, int startX, int startY,
+                                                   int goalX, int goalY) {
   auto encode = [&](int x, int y) { return y * map.getWidth() + x; };
 
   struct ANode {
@@ -91,9 +91,8 @@ void Monster::updateAI(const Map &map, float playerX, float playerY, float dt) {
   pathUpdateTimer -= dt;
   if (pathUpdateTimer <= 0.0f) {
     pathUpdateTimer = PATH_UPDATE_INTERVAL;
-    currentPath =
-        findPath(map, static_cast<int>(x), static_cast<int>(y),
-                 static_cast<int>(playerX), static_cast<int>(playerY));
+    currentPath = findPath(map, static_cast<int>(x), static_cast<int>(y), static_cast<int>(playerX),
+                           static_cast<int>(playerY));
   }
 
   if (currentPath.size() > 1) {
@@ -113,4 +112,4 @@ void Monster::updateAI(const Map &map, float playerX, float playerY, float dt) {
   }
 }
 
-} // namespace rogue
+}  // namespace rogue

@@ -1,5 +1,6 @@
-#include "rogue/Weapon.h"
 #include <gtest/gtest.h>
+
+#include "rogue/Weapon.h"
 
 using namespace rogue;
 

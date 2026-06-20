@@ -1,5 +1,6 @@
-#include "rogue/ParticleSystem.h"
 #include <gtest/gtest.h>
+
+#include "rogue/ParticleSystem.h"
 
 using namespace rogue;
 

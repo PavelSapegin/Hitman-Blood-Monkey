@@ -1,5 +1,6 @@
-#include "rogue/world/Map.h"
 #include <gtest/gtest.h>
+
+#include "rogue/world/Map.h"
 
 using namespace rogue;
 
@@ -36,8 +37,7 @@ TEST_F(MapTest, RoomCentersAreWalkable) {
   // Центры всех комнат должны быть проходимы
   for (const auto &room : map.getRooms()) {
     EXPECT_TRUE(map.isWalkable(room.centerX(), room.centerY()))
-        << "Room center " << room.centerX() << "," << room.centerY()
-        << " is not walkable";
+      << "Room center " << room.centerX() << "," << room.centerY() << " is not walkable";
   }
 }
 

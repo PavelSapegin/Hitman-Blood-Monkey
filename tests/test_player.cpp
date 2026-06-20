@@ -1,15 +1,17 @@
+#include <gtest/gtest.h>
+
+#include <cmath>
+
 #include "rogue/entities/Player.h"
 #include "rogue/world/Map.h"
-#include <cmath>
-#include <gtest/gtest.h>
 
 using namespace rogue;
 
 class PlayerTest : public ::testing::Test {
 protected:
-  Map map{40, 40, 42}; // фиксированный seed
-  Player player{(float)map.getRooms()[0].centerX(),
-                (float)map.getRooms()[0].centerY(), '@', 2, 100};
+  Map map{40, 40, 42};  // фиксированный seed
+  Player player{(float)map.getRooms()[0].centerX(), (float)map.getRooms()[0].centerY(), '@', 2,
+                100};
 };
 
 TEST_F(PlayerTest, MovesOnOpenFloor) {
@@ -47,9 +49,9 @@ TEST_F(PlayerTest, BlockedByWall) {
   Player p{5.0f, 1.0f, '@', 2, 100};
   std::vector<Entity *> entities;
   p.setContext(map, entities, 1.0f);
-  p.processInput(0.0f, -1.0f, 0.016f); // Attempt to move up into the wall
+  p.processInput(0.0f, -1.0f, 0.016f);  // Attempt to move up into the wall
   p.update();
-  EXPECT_GE(p.getY(), 0.5f); // Should not move into the wall
+  EXPECT_GE(p.getY(), 0.5f);  // Should not move into the wall
 }
 
 TEST_F(PlayerTest, DiagonalMovementNormalized) {
@@ -70,8 +72,8 @@ TEST_F(PlayerTest, DiagonalMovementNormalized) {
   p2.update();
 
   float distX = p1.getX() - 5.0f;
-  float distDiag = std::sqrt((p2.getX() - 5.0f) * (p2.getX() - 5.0f) +
-                             (p2.getY() - 5.0f) * (p2.getY() - 5.0f));
+  float distDiag =
+    std::sqrt((p2.getX() - 5.0f) * (p2.getX() - 5.0f) + (p2.getY() - 5.0f) * (p2.getY() - 5.0f));
 
   // Diagonal distance should be approximately the same as straight distance due
   // to normalization

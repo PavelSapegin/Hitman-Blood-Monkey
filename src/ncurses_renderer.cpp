@@ -1,4 +1,5 @@
 #include "rogue/Ncurses_renderer.h"
+
 #include <ncurses.h>
 
 namespace rogue {
@@ -16,13 +17,19 @@ void NcursesRenderer::initialize() {
   }
 }
 
-void NcursesRenderer::clear() { ::clear(); }
+void NcursesRenderer::clear() {
+  ::clear();
+}
 
-void NcursesRenderer::refresh() { ::refresh(); }
+void NcursesRenderer::refresh() {
+  ::refresh();
+}
 void NcursesRenderer::drawChar(float x, float y, char ch, int color) {
   attron(COLOR_PAIR(color));
   mvaddch(static_cast<int>(y), static_cast<int>(x), ch);
   attroff(COLOR_PAIR(color));
 }
-void NcursesRenderer::shutdown() { endwin(); }
-} // namespace rogue
+void NcursesRenderer::shutdown() {
+  endwin();
+}
+}  // namespace rogue

@@ -11,12 +11,13 @@ public:
   char getSymbol() const;
   int getColor() const;
   int getHp() const;
+  int getMaxHp() const { return maxHp; }
   bool isDead() const;
   void takeDamage(int damage);
   void setPosition(float newX, float newY);
-  virtual void update() = 0; // Pure virtual function for updating entity state
+  virtual void update() = 0;  // Pure virtual function for updating entity state
   void move(float dx, float dy);
-  virtual bool isFlashing() const {return false;}
+  virtual bool isFlashing() const { return false; }
 
 protected:
   float x;
@@ -27,4 +28,4 @@ protected:
   int maxHp;
 };
 
-} // namespace rogue
+}  // namespace rogue

@@ -1,0 +1,12 @@
+BasedOnStyle: Google
+IndentWidth: 2
+ColumnLimit: 100
+AccessModifierOffset: -2
+PointerAlignment: Left
+SpaceBeforeParens: ControlStatements
+BreakBeforeBraces: Attach
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+ConstructorInitializerIndentWidth: 2
+ContinuationIndentWidth: 2

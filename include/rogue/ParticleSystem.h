@@ -1,7 +1,9 @@
 #pragma once
-#include "Constants.h"
 #include <raylib.h>
+
 #include <vector>
+
+#include "Constants.h"
 
 namespace rogue {
 
@@ -34,4 +36,4 @@ private:
   std::vector<Particle> particles;
 };
 
-} // namespace rogue
+}  // namespace rogue

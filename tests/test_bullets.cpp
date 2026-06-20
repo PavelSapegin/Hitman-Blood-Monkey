@@ -1,7 +1,8 @@
+#include <gtest/gtest.h>
+
 #include "rogue/BulletSystem.h"
 #include "rogue/entities/Monster.h"
 #include "rogue/world/Map.h"
-#include <gtest/gtest.h>
 
 using namespace rogue;
 

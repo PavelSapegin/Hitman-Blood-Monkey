@@ -5,13 +5,12 @@
 namespace rogue {
 class GameException : public std::runtime_error {
 public:
-  using std::runtime_error::runtime_error; // Inherit constructors
+  using std::runtime_error::runtime_error;  // Inherit constructors
 };
 
 class RendererException : public GameException {
 public:
-  explicit RendererException(const std::string &message)
-      : GameException(message) {}
+  explicit RendererException(const std::string &message) : GameException(message) {}
 };
 
 class MapException : public GameException {
@@ -21,7 +20,6 @@ public:
 
 class InitializationException : public GameException {
 public:
-  explicit InitializationException(const std::string &message)
-      : GameException(message) {}
+  explicit InitializationException(const std::string &message) : GameException(message) {}
 };
-} // namespace rogue
+}  // namespace rogue
