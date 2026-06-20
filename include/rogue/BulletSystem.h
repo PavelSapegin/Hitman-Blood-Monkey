@@ -1,5 +1,6 @@
 #pragma once
 #include "Bullet.h"
+#include "Constants.h"
 #include "ParticleSystem.h"
 #include "entities/Monster.h"
 #include "world/Map.h"
@@ -19,6 +20,5 @@ public:
 private:
   std::vector<Bullet> bullets;
   static constexpr float BULLET_SPEED = 20.0f;
-  static constexpr float TILE_SIZE = 40.0f;
 };
 } // namespace rogue

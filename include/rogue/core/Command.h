@@ -19,11 +19,11 @@ public:
 };
 
 class AttackCommand : public Command {
-
   Monster *target;
+  int damage;
 
 public:
-  AttackCommand(Monster *target) : target(target) {}
+  AttackCommand(Monster *target, int damage = 10) : target(target), damage(damage) {}
   void execute(Entity &entity, Map &map) override;
 };
 } // namespace rogue

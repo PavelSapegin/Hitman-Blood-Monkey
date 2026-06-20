@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Constants.h"
 #include "Renderer.h"
 #include "entities/Entity.h"
 #include "world/Map.h"
@@ -32,7 +33,6 @@ private:
   int screenWidth;
   int screenHeight;
   Camera2D camera;
-  static constexpr float TILE_SIZE = 40.0f;
 };
 
 } // namespace rogue

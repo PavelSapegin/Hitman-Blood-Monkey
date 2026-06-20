@@ -62,28 +62,25 @@ void RaylibRenderer::renderMap(const Map &map,
     }
   }
 
-  for (auto *entity : entities) {
+for (auto* entity : entities) {
     Vector2 pos = worldToScreen(entity->getX(), entity->getY());
     Vector2 tileOrigin = {pos.x - TILE_SIZE / 2.0f, pos.y - TILE_SIZE / 2.0f};
 
-    Texture2D *tex = nullptr;
+    Texture2D* tex = nullptr;
     int color = entity->getColor();
 
-    if (color == COLOR_PLAYER)
-      tex = &tm.get("player");
-    else if (color == 3)
-      tex = &tm.get("monster1");
-    else if (color == 4)
-      tex = &tm.get("monster2");
-    else if (color == 5)
-      tex = &tm.get("boss");
+    if (color == COLOR_PLAYER)  tex = &tm.get("player");
+    else if (color == 3)        tex = &tm.get("monster1");
+    else if (color == 4)        tex = &tm.get("monster2");
+    else if (color == 5)        tex = &tm.get("boss");
 
     if (tex) {
-      DrawTexturePro(*tex, {0, 0, 16, 16},
-                     {tileOrigin.x, tileOrigin.y, TILE_SIZE, TILE_SIZE}, {0, 0},
-                     0.0f, WHITE);
+        Color tint = entity->isFlashing() ? RED : WHITE;
+        DrawTexturePro(*tex, {0, 0, 16, 16},
+                       {tileOrigin.x, tileOrigin.y, TILE_SIZE, TILE_SIZE},
+                       {0, 0}, 0.0f, tint);
     }
-  }
+}
 }
 
 void RaylibRenderer::setCameraTarget(float x, float y) {

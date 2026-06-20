@@ -35,6 +35,7 @@ public:
 
   bool isWalkable(float x, float y) const;
   void spillBlood(float x, float y);
+  void spillBloodArea(int cx, int cy, int radius);
   int getWidth() const;
   int getHeight() const;
 

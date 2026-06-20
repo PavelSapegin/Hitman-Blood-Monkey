@@ -30,7 +30,7 @@ struct Weapon {
   static Weapon makeMinigun() {
     Weapon w;
     w.type = WeaponType::Minigun;
-    w.damage = 25.0f;
+    w.damage = 10.0f;
     w.range = 15.0f;
     w.currentFireRate = 0.5f;
     return w;

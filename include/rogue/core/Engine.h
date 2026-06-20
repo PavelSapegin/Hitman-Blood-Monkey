@@ -1,5 +1,6 @@
 #pragma once
 #include "../BulletSystem.h"
+#include "../Constants.h"
 #include "../ParticleSystem.h"
 #include "../Renderer.h"
 #include "../Weapon.h"
@@ -24,6 +25,7 @@ private:
   void render();
   void renderDebugInfo();
   void reset();
+  void spawnEntities();
   BulletSystem bulletSystem;
   Weapon currentWeapon = Weapon::makeFists();
   float weaponCooldownTimer = 0.0f;
@@ -39,6 +41,15 @@ private:
   float attackCooldown = 0.0f;
   static constexpr float ATTACK_RANGE = 1.5f;
   static constexpr float ATTACK_COOLDOWN = 0.3f;
+
+  // Time stop (Za Warudo)
+  bool timeStopped = false;
+  float timeStopTimer = 0.0f;
+  float timeStopCooldownTimer = 0.0f;
+  float timeStopEffectTimer = 0.0f;
+  static constexpr float TIME_STOP_DURATION = 3.0f;
+  static constexpr float TIME_STOP_COOLDOWN = 10.0f;
+  static constexpr float TIME_STOP_EFFECT_DURATION = 1.2f;
 };
 
 } // namespace rogue

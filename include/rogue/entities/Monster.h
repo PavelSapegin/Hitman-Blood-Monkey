@@ -21,11 +21,16 @@ public:
       attackCooldown -= dt;
   }
   void resetCooldown() { attackCooldown = ATTACK_COOLDOWN; }
+  void onHit() {hitFlashTimer = HIT_FLASH_DURATION;}
+  bool isFlashing() const override {return hitFlashTimer > 0.0f;}
+  void tickFlash(float dt) {if (hitFlashTimer > 0.0f) hitFlashTimer -= dt;}
 
 private:
   float attackCooldown = 0.0f;
   int attackDamage = 10;
   float aggroRange = 10.0f;
+  float hitFlashTimer = 0.0f;
+  static constexpr float HIT_FLASH_DURATION = 0.1f;
   struct Node {
     int x, y;
     float g, h;
@@ -38,7 +43,7 @@ private:
   static constexpr float PATH_UPDATE_INTERVAL = 0.5f;
 
   std::vector<std::pair<int, int>> findPath(const Map &map, int startX,
-                                            int start, int goalX, int goalY);
+                                            int startY, int goalX, int goalY);
 };
 
 } // namespace rogue

@@ -19,12 +19,12 @@ include_directories(include)
 
 set(GAME_SOURCES
     src/core/Engine.cpp
+    src/core/Command.cpp
     src/raylib_renderer.cpp
-    include/rogue/entities/Entity.cpp
-    include/rogue/entities/Monster.cpp
+    src/entities/Entity.cpp
+    src/entities/Monster.cpp
     src/entities/Player.cpp
-    include/rogue/world/Map.cpp
-    include/rogue/core/Command.cpp
+    src/world/Map.cpp
     src/ParticleSystem.cpp
     src/BulletSystem.cpp
 )
@@ -39,6 +39,8 @@ add_executable(game_tests
     tests/test_particles.cpp
     tests/test_factory.cpp
     tests/test_commands.cpp
+    tests/test_weapon.cpp
+    tests/test_bullets.cpp
     ${GAME_SOURCES}
 )
 target_link_libraries(game_tests GTest::gtest_main raylib)

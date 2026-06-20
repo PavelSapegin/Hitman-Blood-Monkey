@@ -32,6 +32,8 @@ void BulletSystem::update(float dt, Map &map,
     b.lifetime -= dt;
 
     if (b.lifetime <= 0 || !map.isWalkable(b.x, b.y)) {
+      if (!map.isWalkable(b.x, b.y))
+        particles.spawnFire(b.x, b.y, 5);
       b.dead = true;
       continue;
     }
@@ -44,11 +46,16 @@ void BulletSystem::update(float dt, Map &map,
       float dist = std::sqrt(dx * dx + dy * dy);
       if (dist < 0.5f) {
         m->takeDamage(static_cast<int>(b.damage));
+        m->onHit();
         b.dead = true;
-        particles.spawnBlood(m->getX(), m->getY(), 8);
+        particles.spawnBlood(m->getX(), m->getY(), 15);
         if (m->isDead()) {
-          particles.spawnBlood(m->getX(), m->getY(), 25);
-          map.spillBlood(m->getX(), m->getY());
+          particles.spawnBlood(m->getX(), m->getY(), 40);
+          particles.spawnExplosion(m->getX(), m->getY(), 30);
+          particles.spawnSmoke(m->getX(), m->getY(), 12);
+          map.spillBloodArea((int)m->getX(), (int)m->getY(), 3);
+        } else {
+          map.spillBloodArea((int)m->getX(), (int)m->getY(), 1);
         }
         break;
       }

@@ -1,12 +1,12 @@
-#include "../include/rogue/core/Engine.h"
-#include "../include/rogue/Exceptions.h"
-#include "../include/rogue/ParticleSystem.h"
-#include "../include/rogue/Raylib_renderer.h"
-#include "../include/rogue/Renderer.h"
-#include "../include/rogue/TextureManager.h"
-#include "../include/rogue/entities/Monster.h"
-#include "../include/rogue/entities/MonsterFactory.h"
-#include "../include/rogue/entities/Player.h"
+#include "rogue/core/Engine.h"
+#include "rogue/Exceptions.h"
+#include "rogue/ParticleSystem.h"
+#include "rogue/Raylib_renderer.h"
+#include "rogue/Renderer.h"
+#include "rogue/TextureManager.h"
+#include "rogue/entities/Monster.h"
+#include "rogue/entities/MonsterFactory.h"
+#include "rogue/entities/Player.h"
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -31,29 +31,32 @@ Engine::Engine(std::unique_ptr<IRenderer> r)
   tm.loadTexture("monster1", "../assets/tile_0109.png");
   tm.loadTexture("monster2", "../assets/tile_0111.png");
   tm.loadTexture("boss", "../assets/tile_0108.png");
-  const auto &rooms = map.getRooms();
-  if (!rooms.empty()) {
-    // Игрок спавнится в первой комнате
-    player.setPosition(rooms[0].centerX(), rooms[0].centerY());
-
-    // Монстры спавнятся в остальных комнатах — по несколько в каждой
-    std::mt19937 rng(std::random_device{}());
-    for (int i = 1; i < (int)rooms.size(); ++i) {
-      const auto &room = rooms[i];
-      int count = 3 + rng() % 5; // 3-7 монстров в комнате
-      for (int j = 0; j < count; ++j) {
-        float mx = room.x + 1 + rng() % (room.w - 2);
-        float my = room.y + 1 + rng() % (room.h - 2);
-        MonsterType type = static_cast<MonsterType>(rng() % 3);
-        monsters.push_back(MonsterFactory::createMonster(type, mx, my));
-      }
-    }
-  }
+  spawnEntities();
 }
 
 Engine::~Engine() {
   TextureManager::getInstance().unloadAll();
   renderer->shutdown();
+}
+
+void Engine::spawnEntities() {
+  const auto &rooms = map.getRooms();
+  if (rooms.empty())
+    return;
+
+  player.setPosition(rooms[0].centerX(), rooms[0].centerY());
+
+  std::mt19937 rng(std::random_device{}());
+  for (int i = 1; i < (int)rooms.size(); ++i) {
+    const auto &room = rooms[i];
+    int count = 3 + rng() % 5;
+    for (int j = 0; j < count; ++j) {
+      float mx = room.x + 1 + rng() % (room.w - 2);
+      float my = room.y + 1 + rng() % (room.h - 2);
+      MonsterType type = static_cast<MonsterType>(rng() % 3);
+      monsters.push_back(MonsterFactory::createMonster(type, mx, my));
+    }
+  }
 }
 
 void Engine::handleInput() {
@@ -80,13 +83,19 @@ void Engine::handleInput() {
   if (IsKeyPressed(KEY_Q))
     isRunning = false;
 
-  // Переключение оружия
   if (IsKeyPressed(KEY_ONE))
     currentWeapon = Weapon::makeFists();
   if (IsKeyPressed(KEY_TWO))
     currentWeapon = Weapon::makeMinigun();
 
-  // Стрельба / удар
+  if (IsKeyPressed(KEY_E) && timeStopCooldownTimer <= 0.0f && !timeStopped) {
+    timeStopped = true;
+    timeStopTimer = TIME_STOP_DURATION;
+    timeStopEffectTimer = TIME_STOP_EFFECT_DURATION;
+    timeStopCooldownTimer = TIME_STOP_COOLDOWN;
+    particles.spawnExplosion(player.getX(), player.getY(), 20);
+  }
+
   weaponCooldownTimer -= deltaTime;
 
   if (currentWeapon.type == WeaponType::Fists) {
@@ -101,8 +110,14 @@ void Engine::handleInput() {
         float dist = std::sqrt(ddx * ddx + ddy * ddy);
         if (dist <= currentWeapon.range) {
           m->takeDamage(static_cast<int>(currentWeapon.damage));
-          map.spillBlood(m->getX(), m->getY());
-          particles.spawnBlood(m->getX(), m->getY(), 30);
+          m->onHit();
+          map.spillBloodArea((int)m->getX(), (int)m->getY(), 2);
+          particles.spawnBlood(m->getX(), m->getY(), 60);
+          if (m->isDead()) {
+            particles.spawnExplosion(m->getX(), m->getY(), 40);
+            particles.spawnSmoke(m->getX(), m->getY(), 15);
+            map.spillBloodArea((int)m->getX(), (int)m->getY(), 3);
+          }
         }
       }
     }
@@ -112,29 +127,27 @@ void Engine::handleInput() {
     currentWeapon.isFiring = IsMouseButtonDown(MOUSE_LEFT_BUTTON);
 
     if (currentWeapon.isFiring) {
-      // Разгон — уменьшаем интервал между выстрелами
       currentWeapon.currentFireRate -= currentWeapon.spinupRate * deltaTime;
       if (currentWeapon.currentFireRate < currentWeapon.minFireRate)
         currentWeapon.currentFireRate = currentWeapon.minFireRate;
     } else {
-      // Торможение — возвращаемся к начальной скорострельности
       currentWeapon.currentFireRate += currentWeapon.spinupRate * deltaTime;
       if (currentWeapon.currentFireRate > currentWeapon.maxFireRate)
         currentWeapon.currentFireRate = currentWeapon.maxFireRate;
     }
 
-    // Получаем камеру из renderer
     auto *raylibRenderer = dynamic_cast<RaylibRenderer *>(renderer.get());
     if (raylibRenderer && currentWeapon.isFiring &&
         weaponCooldownTimer <= 0.0f) {
+      particles.spawnMuzzleFlash(player.getX(), player.getY());
       weaponCooldownTimer = currentWeapon.currentFireRate;
 
       Vector2 mouseScreen = GetMousePosition();
       Vector2 mouseWorld =
           GetScreenToWorld2D(mouseScreen, raylibRenderer->getCamera());
 
-      float tx = mouseWorld.x / 40.0f;
-      float ty = mouseWorld.y / 40.0f;
+      float tx = mouseWorld.x / TILE_SIZE;
+      float ty = mouseWorld.y / TILE_SIZE;
 
       float spreadAngles[] = {-0.15f, 0.0f, 0.15f};
       for (float angleOffset : spreadAngles) {
@@ -149,7 +162,7 @@ void Engine::handleInput() {
         float rotatedX =
             dx * std::cos(angleOffset) - dy * std::sin(angleOffset);
         float rotatedY =
-            dy * std::sin(angleOffset) + dy * std::cos(angleOffset);
+            dx * std::sin(angleOffset) + dy * std::cos(angleOffset);
 
         float btx = player.getX() + rotatedX * 10.0f;
         float bty = player.getY() + rotatedY * 10.0f;
@@ -217,6 +230,72 @@ void Engine::render() {
   bulletSystem.render();
   renderer->endScene();
   renderDebugInfo();
+
+  if (timeStopped) {
+    int sw = GetScreenWidth();
+    int sh = GetScreenHeight();
+
+    // 1. Dark background overlay
+    DrawRectangle(0, 0, sw, sh, Color{0, 0, 10, 120});
+
+    // 2. Desaturated blue-purple tint
+    DrawRectangle(0, 0, sw, sh, Color{50, 30, 90, 50});
+
+    // 3. Expanding shockwave (first 0.6s)
+    float effectAge = TIME_STOP_EFFECT_DURATION - timeStopEffectTimer;
+    if (effectAge < 0.6f) {
+      float t = effectAge / 0.6f;
+      float radius = t * 450.0f;
+      unsigned char alpha = (unsigned char)(140 * (1.0f - t * t));
+
+      Vector2 pc = {sw / 2.0f, sh / 2.0f};
+
+      DrawCircleLines((int)pc.x, (int)pc.y, radius,
+                      Color{200, 180, 255, alpha});
+      DrawCircleLines((int)pc.x, (int)pc.y, radius * 0.65f,
+                      Color{200, 180, 255, (unsigned char)(alpha / 2)});
+      DrawCircleLines((int)pc.x, (int)pc.y, radius * 0.35f,
+                      Color{200, 180, 255, (unsigned char)(alpha / 3)});
+    }
+
+    // 4. Chromatic aberration border glow (subtle colored edges)
+    int borderSize = 4;
+    DrawRectangle(0, 0, sw, borderSize, Color{100, 50, 180, 40});
+    DrawRectangle(0, sh - borderSize, sw, borderSize, Color{180, 50, 100, 40});
+    DrawRectangle(0, 0, borderSize, sh, Color{100, 50, 180, 40});
+    DrawRectangle(sw - borderSize, 0, borderSize, sh, Color{180, 50, 100, 40});
+
+    // 5. "ZA WARUDO!" anime text
+    if (timeStopEffectTimer > 0) {
+      float t = timeStopEffectTimer / TIME_STOP_EFFECT_DURATION;
+      int fontSize = 90 + (int)(30 * (1.0f - t));
+      unsigned char alpha = (unsigned char)(255 * t);
+      Color zaColor = {255, 215, 0, alpha};
+
+      int w1 = MeasureText("ZA WARUDO!", fontSize);
+      int w2 = MeasureText("TOKI WO TOMARE", fontSize / 2);
+
+      DrawText("ZA WARUDO!", (sw - w1) / 2, sh / 2 - fontSize - 10,
+               fontSize, zaColor);
+      DrawText("TOKI WO TOMARE", (sw - w2) / 2, sh / 2 + 10,
+               fontSize / 2,
+               Color{255, 215, 0, (unsigned char)(alpha * 0.6f)});
+
+      // Golden glow behind text
+      DrawRectangle((sw - w1) / 2 - 20, sh / 2 - fontSize - 20,
+                    w1 + 40, fontSize + 50,
+                    Color{255, 215, 0, (unsigned char)(alpha * 0.08f)});
+    }
+  }
+
+  if (timeStopCooldownTimer > 0 && !timeStopped) {
+    DrawText(TextFormat("ZA WARUDO COOLDOWN: %.1f", timeStopCooldownTimer),
+             10, GetScreenHeight() - 30, 18, Color{200, 180, 255, 180});
+  } else if (!timeStopped) {
+    DrawText("PRESS E: ZA WARUDO", 10, GetScreenHeight() - 30, 18,
+             Color{200, 180, 255, 180});
+  }
+
   renderer->refresh();
 }
 
@@ -228,34 +307,23 @@ void Engine::reset() {
   currentWeapon = Weapon::makeFists();
   weaponCooldownTimer = 0.0f;
 
-  const auto &rooms = map.getRooms();
-  if (!rooms.empty()) {
-    player.setPosition(rooms[0].centerX(), rooms[0].centerY());
-    player =
-        Player(rooms[0].centerX(), rooms[0].centerY(), '@', COLOR_PLAYER, 100);
-
-    std::mt19937 rng(std::random_device{}());
-    for (int i = 1; i < (int)rooms.size(); ++i) {
-      const auto &room = rooms[i];
-      int count = 3 + rng() % 5;
-      for (int j = 0; j < count; ++j) {
-        float mx = room.x + 1 + rng() % (room.w - 2);
-        float my = room.y + 1 + rng() % (room.h - 2);
-        MonsterType type = static_cast<MonsterType>(rng() % 3);
-        monsters.push_back(MonsterFactory::createMonster(type, mx, my));
-      }
-    }
-  }
+  player =
+      Player(0.0f, 0.0f, '@', COLOR_PLAYER, 100);
+  spawnEntities();
 
   particles = ParticleSystem();
   attackCooldown = 0.0f;
+  timeStopped = false;
+  timeStopTimer = 0.0f;
+  timeStopCooldownTimer = 0.0f;
+  timeStopEffectTimer = 0.0f;
   isRunning = true;
 }
 
 void Engine::run() {
   try {
     while (isRunning && !WindowShouldClose()) {
-      deltaTime = GetFrameTime();
+      deltaTime = std::min(GetFrameTime(),0.05f);
 
       handleInput();
 
@@ -267,9 +335,43 @@ void Engine::run() {
       }
 
       player.setContext(map, allEntities, deltaTime);
-      particles.update(deltaTime);
-      bulletSystem.update(deltaTime, map, monsters, particles);
       player.update();
+
+      if (timeStopped) {
+        timeStopTimer -= deltaTime;
+        timeStopEffectTimer -= deltaTime;
+        timeStopCooldownTimer -= deltaTime;
+        if (timeStopTimer <= 0.0f) {
+          timeStopped = false;
+          particles.spawnExplosion(player.getX(), player.getY(), 15);
+        }
+      } else {
+        timeStopCooldownTimer -= deltaTime;
+        particles.update(deltaTime);
+        bulletSystem.update(deltaTime, map, monsters, particles);
+
+        for (auto &monster : monsters) {
+          monster->updateAI(map, player.getX(), player.getY(), deltaTime);
+
+          float dx = player.getX() - monster->getX();
+          float dy = player.getY() - monster->getY();
+          float dist = std::sqrt(dx * dx + dy * dy);
+
+          if (dist <= Monster::ATTACK_RANGE &&
+              monster->getAttackCooldown() <= 0.0f) {
+            player.takeDamage(monster->getAttackDamage());
+            particles.spawnBlood(player.getX(), player.getY(), 5);
+            monster->resetCooldown();
+          }
+        }
+      }
+
+      monsters.erase(
+          std::remove_if(monsters.begin(), monsters.end(),
+                         [](const std::unique_ptr<Monster> &monster) {
+                           return monster->isDead();
+                         }),
+          monsters.end());
       if (player.isDead()) {
         while (!WindowShouldClose()) {
           BeginDrawing();
@@ -293,28 +395,6 @@ void Engine::run() {
           break;
         continue;
       }
-      for (auto &monster : monsters) {
-        monster->updateAI(map, player.getX(), player.getY(), deltaTime);
-
-        float dx = player.getX() - monster->getX();
-        float dy = player.getY() - monster->getY();
-        float dist = std::sqrt(dx * dx + dy * dy);
-
-        if (dist <= Monster::ATTACK_RANGE &&
-            monster->getAttackCooldown() <= 0.0f) {
-          player.takeDamage(monster->getAttackDamage());
-          // monster->tickCooldown(-Monster::ATTACK_COOLDOWN);
-          monster->resetCooldown();
-        }
-      }
-
-      monsters.erase(
-          std::remove_if(monsters.begin(), monsters.end(),
-                         [](const std::unique_ptr<Monster> &monster) {
-                           return monster->isDead();
-                         }),
-          monsters.end());
-
       render();
     }
   } catch (const GameException &e) {
